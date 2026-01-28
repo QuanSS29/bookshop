@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookshop - Trang chủ</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    {% include 'includes/header.html' %}
+
+    <section class="hero">
+        <div class="container">
+            <h1>Khám Phá Thế Giới Sách</h1>
+            <p>Hơn 17 đầu sách chất lượng đang chờ bạn khám phá</p>
+        </div>
+    </section>
+
+    <section class="books-section">
+        <div class="container">
+            <h2>Sách Nổi Bật</h2>
+
+            <div class="book-grid">
+                {% for i in books_to_show %}
+                <div class="book-card">
+                    <img src="{% static 'images/book' %}{{ i }}.jpg" alt="Sách {{ i }}" loading="lazy">
+                    <div class="book-info">
+                        <h3>Sách Hay Số {{ i }}</h3>
+                        <p class="author">Tác giả mẫu</p>
+                        <p class="price">{% if i|divisibleby:3 %}189.000đ{% else %}229.000đ{% endif %}</p>
+                        <button class="add-to-cart">Thêm vào giỏ</button>
+                    </div>
+                </div>
+                {% empty %}
+                <p>Không có sách nào để hiển thị.</p>
+                {% endfor %}
+            </div>
+
+            <!-- Phân trang đơn giản (giả lập) -->
+            <div class="pagination">
+                {% if current_page > 1 %}
+                    <a href="?page={{ current_page|add:-1 }}" class="page-link prev">« Trang trước</a>
+                {% endif %}
+
+                {% for p in page_range %}
+                    <a href="?page={{ p }}" class="page-link {% if p == current_page %}active{% endif %}">{{ p }}</a>
+                {% endfor %}
+
+                {% if current_page < total_pages %}
+                    <a href="?page={{ current_page|add:1 }}" class="page-link next">Trang sau »</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    {% include 'includes/footer.html' %}
+
+</body>
+</html>

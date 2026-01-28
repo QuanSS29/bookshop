@@ -1,0 +1,215 @@
+
+
+{% block extra_head %}
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --sidebar-collapsed: 80px;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-dark: #0f172a;
+            --bg-main: #f8fafc;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-main); color: var(--text); margin: 0; }
+        .admin-layout { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-dark);
+            color: white;
+            position: fixed;
+            height: 100%;
+            transition: width 0.3s ease;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        .sidebar.collapsed { width: var(--sidebar-collapsed); }
+        .sidebar-header {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        .sidebar ul { list-style: none; padding: 0; margin: 1.5rem 0; }
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .sidebar a:hover, .sidebar li.active a {
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+        .sidebar .icon { margin-right: 1rem; font-size: 1.3rem; min-width: 24px; text-align: center; }
+        .sidebar .text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sidebar.collapsed .text { display: none; }
+        .sidebar.collapsed .sidebar-header { padding: 1.5rem 0.5rem; font-size: 1.1rem; }
+
+        /* Toggle button */
+        .toggle-btn {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 0.6rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .sidebar.collapsed .toggle-btn { left: 1.2rem; }
+
+        /* Main content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar.collapsed ~ .main-content { margin-left: var(--sidebar-collapsed); }
+
+        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .welcome { color: var(--text-light); }
+
+        /* Cards grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.8rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-6px); }
+        .stat-card h3 { color: var(--text-light); font-size: 1rem; margin-bottom: 0.8rem; }
+        .stat-number { font-size: 2.4rem; font-weight: 700; margin: 0.4rem 0; }
+        .stat-card.total { color: var(--primary); }
+        .stat-card.success { color: var(--success); }
+        .stat-card.warning { color: var(--warning); }
+        .stat-card.danger { color: var(--danger); }
+
+        /* Table */
+        .recent-table { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 1.2rem 1.5rem; text-align: left; }
+        th { background: #f1f5f9; font-weight: 600; color: #475569; }
+        tr { border-bottom: 1px solid #e2e8f0; }
+        .btn-action { padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.9rem; }
+        .btn-edit { background: #dbeafe; color: var(--primary); }
+        .btn-delete { background: #fee2e2; color: var(--danger); }
+
+        @media (max-width: 768px) {
+            .sidebar { width: var(--sidebar-collapsed); }
+            .sidebar .text { display: none; }
+            .main-content { margin-left: var(--sidebar-collapsed); padding: 1.5rem; }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">Bookshop Admin</div>
+        <ul>
+            <li class="active"><a href="#"><span class="icon">🏠</span><span class="text">Dashboard</span></a></li>
+            <li><a href="#"><span class="icon">📚</span><span class="text">Quản lý sách</span></a></li>
+            <li><a href="#"><span class="icon">📦</span><span class="text">Đơn hàng</span></a></li>
+            <li><a href="#"><span class="icon">👥</span><span class="text">Người dùng</span></a></li>
+            <li><a href="#"><span class="icon">📊</span><span class="text">Thống kê</span></a></li>
+        </ul>
+        <button class="toggle-btn" id="toggleSidebar">←</button>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+        <h1>Dashboard Quản Trị</h1>
+        <p class="welcome">Xin chào, {{ user.username | default:"Admin" }}! Đây là tổng quan hệ thống.</p>
+
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <h3>Tổng sách</h3>
+                <div class="stat-number">1,248</div>
+                <small>Đầu sách trong kho</small>
+            </div>
+            <div class="stat-card success">
+                <h3>Người dùng</h3>
+                <div class="stat-number">4,192</div>
+                <small>Đã đăng ký</small>
+            </div>
+            <div class="stat-card warning">
+                <h3>Đơn chờ</h3>
+                <div class="stat-number">56</div>
+                <small>Chưa xử lý</small>
+            </div>
+            <div class="stat-card danger">
+                <h3>Sách sắp hết</h3>
+                <div class="stat-number">14</div>
+                <small>Cần nhập thêm</small>
+            </div>
+        </div>
+
+        <h2>Sách gần đây / Quản lý nhanh</h2>
+        <div class="recent-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên sách</th>
+                        <th>Tác giả</th>
+                        <th>Giá</th>
+                        <th>Tồn kho</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1248</td>
+                        <td>Nhà giả kim</td>
+                        <td>Paulo Coelho</td>
+                        <td>189.000đ</td>
+                        <td>45</td>
+                        <td><a href="#" class="btn-action btn-edit">Sửa</a> <a href="#" class="btn-action btn-delete">Xóa</a></td>
+                    </tr>
+                    <tr>
+                        <td>1247</td>
+                        <td>Đắc nhân tâm</td>
+                        <td>Dale Carnegie</td>
+                        <td>129.000đ</td>
+                        <td>9</td>
+                        <td><a href="#" class="btn-action btn-edit">Sửa</a> <a href="#" class="btn-action btn-delete">Xóa</a></td>
+                    </tr>
+                    <!-- Thêm dòng khác nếu muốn -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggleSidebar');
+
+    toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        toggleBtn.textContent = sidebar.classList.contains('collapsed') ? '→' : '←';
+    });
+</script>
+{% endblock %}
