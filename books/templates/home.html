@@ -1,61 +1,212 @@
-<!DOCTYPE html>
-<html lang="vi">
+{% extends 'base.html' %}
 {% load static %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bookshop - Trang chủ</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body>
 
-    {% include 'includes/header.html' %}
+{% block title %}Bookshop - Trang chủ{% endblock %}
 
-    <section class="hero">
-        <div class="container">
-            <h1>Khám Phá Thế Giới Sách</h1>
-            <p>Hơn 17 đầu sách chất lượng đang chờ bạn khám phá</p>
-        </div>
-    </section>
+{% block content %}
 
-    <section class="books-section">
-        <div class="container">
-            <h2>Sách Nổi Bật</h2>
-
-            <div class="book-grid">
-                {% for i in books_to_show %}
-                <div class="book-card">
-                    <img src="{% static 'images/book' %}{{ i }}.jpg" alt="Sách {{ i }}" loading="lazy">
-                    <div class="book-info">
-                        <h3>Sách Hay Số {{ i }}</h3>
-                        <p class="author">Tác giả mẫu</p>
-                        <p class="price">{% if i|divisibleby:3 %}189.000đ{% else %}229.000đ{% endif %}</p>
-                        <button class="add-to-cart">Thêm vào giỏ</button>
-                    </div>
+<!-- BANNER SLIDER -->
+<section class="banner-section">
+    <div class="banner-slider">
+        <div class="banner-slide active">
+            <img src="{% static 'images/banner1.jpg' %}" alt="Banner 1">
+            <div class="banner-overlay">
+                <div class="banner-content">
+                    <span class="banner-tag">Bộ sưu tập mới</span>
+                    <h2>Hành Trình Tri Thức<br>Bắt Đầu Từ Đây</h2>
+                    <a href="{% url 'books:shop' %}" class="banner-btn">Khám phá ngay</a>
                 </div>
-                {% empty %}
-                <p>Không có sách nào để hiển thị.</p>
-                {% endfor %}
-            </div>
-
-            <!-- Phân trang đơn giản (giả lập) -->
-            <div class="pagination">
-                {% if current_page > 1 %}
-                    <a href="?page={{ current_page|add:-1 }}" class="page-link prev">« Trang trước</a>
-                {% endif %}
-
-                {% for p in page_range %}
-                    <a href="?page={{ p }}" class="page-link {% if p == current_page %}active{% endif %}">{{ p }}</a>
-                {% endfor %}
-
-                {% if current_page < total_pages %}
-                    <a href="?page={{ current_page|add:1 }}" class="page-link next">Trang sau »</a>
-                {% endif %}
             </div>
         </div>
-    </section>
+        <div class="banner-slide">
+            <img src="{% static 'images/banner2.jpg' %}" alt="Banner 2">
+            <div class="banner-overlay">
+                <div class="banner-content">
+                    <span class="banner-tag">Ưu đãi tháng này</span>
+                    <h2>Giảm Đến 30%<br>Cho Sách Nổi Bật</h2>
+                    <a href="{% url 'books:shop' %}" class="banner-btn">Mua ngay</a>
+                </div>
+            </div>
+        </div>
+        <div class="banner-slide">
+            <img src="{% static 'images/banner3.jpg' %}" alt="Banner 3">
+            <div class="banner-overlay">
+                <div class="banner-content">
+                    <span class="banner-tag">Bestseller</span>
+                    <h2>Những Cuốn Sách<br>Thay Đổi Cuộc Đời</h2>
+                    <a href="{% url 'books:shop' %}" class="banner-btn">Xem tất cả</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="banner-dots">
+        <span class="dot active" onclick="goSlide(0)"></span>
+        <span class="dot" onclick="goSlide(1)"></span>
+        <span class="dot" onclick="goSlide(2)"></span>
+    </div>
+    <button class="banner-arrow prev" onclick="changeSlide(-1)">&#8249;</button>
+    <button class="banner-arrow next" onclick="changeSlide(1)">&#8250;</button>
+</section>
 
-    {% include 'includes/footer.html' %}
-{% include 'partials/messages.html' %}
-</body>
-</html>
+<!-- THÔNG ĐIỆP -->
+<section class="quote-section">
+    <div class="container">
+        <div class="quote-card">
+            <div class="quote-icon">"</div>
+            <blockquote>
+                Một cuốn sách hay để lại dấu ấn trong tâm trí bạn mãi mãi —<br>
+                nó thay đổi cách bạn nhìn thế giới, cảm nhận cuộc sống và hiểu chính mình.
+            </blockquote>
+            <cite>— Bookshop Philosophy —</cite>
+        </div>
+    </div>
+</section>
+
+<!-- SÁCH MỚI VỀ -->
+{% if new_books %}
+<section class="books-section alt">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <span class="section-tag">Vừa cập nhật</span>
+                <h2 class="section-title">Sách Mới Về</h2>
+            </div>
+        </div>
+        <div class="book-grid">
+            {% for book in new_books %}
+            <div class="book-card">
+                <a href="{% url 'books:product_detail' book.id %}" class="book-link">
+                    <div class="book-img-wrap">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" loading="lazy">
+                        {% else %}
+                            <div class="book-no-img">📖</div>
+                        {% endif %}
+                        <span class="badge-new">Mới</span>
+                        <div class="book-hover-overlay"><span>Xem chi tiết</span></div>
+                    </div>
+                    <div class="book-info">
+                        <span class="book-category">{{ book.category.name|default:"Sách" }}</span>
+                        <h3 class="book-title">{{ book.title }}</h3>
+                        <p class="book-author">{{ book.author|default:"Tác giả" }}</p>
+                        <div class="book-footer">
+                            <span class="book-price" data-price="{{ book.price|floatformat:0 }}">{{ book.price|floatformat:0 }}</span>
+                            <button class="btn-cart" onclick="event.preventDefault()">+ Giỏ</button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- SÁCH NỔI BẬT -->
+<section class="books-section">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <span class="section-tag">Được yêu thích nhất</span>
+                <h2 class="section-title">Sách Nổi Bật</h2>
+            </div>
+            <a href="{% url 'books:shop' %}" class="view-all">Xem tất cả →</a>
+        </div>
+        <div class="book-grid">
+            {% for book in books_to_show %}
+            <div class="book-card">
+                <a href="{% url 'books:product_detail' book.id %}" class="book-link">
+                    <div class="book-img-wrap">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" loading="lazy">
+                        {% else %}
+                            <div class="book-no-img">📖</div>
+                        {% endif %}
+                        <div class="book-hover-overlay"><span>Xem chi tiết</span></div>
+                    </div>
+                    <div class="book-info">
+                        <span class="book-category">{{ book.category.name|default:"Sách" }}</span>
+                        <h3 class="book-title">{{ book.title }}</h3>
+                        <p class="book-author">{{ book.author|default:"Tác giả" }}</p>
+                        <div class="book-footer">
+                            <span class="book-price" data-price="{{ book.price|floatformat:0 }}">{{ book.price|floatformat:0 }}</span>
+                            <button class="btn-cart" onclick="event.preventDefault()">+ Giỏ</button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="empty-books">
+                <p>Chưa có sách nào.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if total_pages > 1 %}
+        <div class="pagination">
+            {% if current_page > 1 %}
+                <a href="?page={{ current_page|add:-1 }}" class="page-link">«</a>
+            {% endif %}
+            {% for p in page_range %}
+                <a href="?page={{ p }}" class="page-link {% if p == current_page %}active{% endif %}">{{ p }}</a>
+            {% endfor %}
+            {% if current_page < total_pages %}
+                <a href="?page={{ current_page|add:1 }}" class="page-link">»</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- TẠI SAO CHỌN CHÚNG TÔI -->
+<section class="features-section">
+    <div class="container">
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon">📦</div>
+                <h4>Giao hàng nhanh</h4>
+                <p>Nhận sách trong 1-3 ngày làm việc trên toàn quốc</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">✅</div>
+                <h4>Sách chính hãng</h4>
+                <p>100% sách có nguồn gốc rõ ràng, chất lượng đảm bảo</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🔄</div>
+                <h4>Đổi trả dễ dàng</h4>
+                <p>Hỗ trợ đổi trả trong vòng 7 ngày nếu có lỗi</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">💬</div>
+                <h4>Hỗ trợ 24/7</h4>
+                <p>Đội ngũ tư vấn luôn sẵn sàng giúp bạn chọn sách</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.banner-slide');
+    const dots   = document.querySelectorAll('.dot');
+
+    function goSlide(n) {
+        slides[currentSlide].classList.remove('active');
+        dots[currentSlide].classList.remove('active');
+        currentSlide = (n + slides.length) % slides.length;
+        slides[currentSlide].classList.add('active');
+        dots[currentSlide].classList.add('active');
+    }
+    function changeSlide(dir) { goSlide(currentSlide + dir); }
+    setInterval(() => changeSlide(1), 5000);
+
+    document.querySelectorAll('.book-price').forEach(el => {
+        const num = parseInt(el.dataset.price);
+        if (!isNaN(num)) el.textContent = num.toLocaleString('vi-VN') + ' đ';
+    });
+</script>
+{% endblock %}
