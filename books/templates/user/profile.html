@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="vi">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookshop - Tài khoản của tôi</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --cream: #faf6f1; --brown: #3d2b1f; --accent: #c0392b;
+            --gold: #d4a853; --light: #f0e9df; --text-muted: #7a6555;
+        }
+        body { background: var(--cream); font-family: 'Georgia', serif; color: var(--brown); }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+        /* PAGE HEADER */
+        .page-header { background: var(--brown); padding: 36px 0; }
+        .profile-banner {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .avatar {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: var(--gold);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+            color: var(--brown);
+            font-weight: bold;
+            border: 3px solid rgba(255,255,255,0.3);
+            flex-shrink: 0;
+        }
+        .profile-banner-info h1 { color: white; font-size: 1.5rem; margin-bottom: 4px; }
+        .profile-banner-info p { color: #c9b8a8; font-size: 0.9rem; }
+        .profile-badge {
+            margin-left: auto;
+            padding: 6px 16px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            color: var(--gold);
+            font-size: 0.82rem;
+            font-family: sans-serif;
+        }
+
+        /* LAYOUT */
+        .profile-section { padding: 36px 0 60px; }
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        /* SIDEBAR MENU */
+        .sidebar-menu {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(61,43,31,0.08);
+            position: sticky;
+            top: 24px;
+        }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            text-decoration: none;
+            color: var(--brown);
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--light);
+            transition: all 0.2s;
+        }
+        .sidebar-menu a:last-child { border-bottom: none; }
+        .sidebar-menu a:hover { background: var(--light); }
+        .sidebar-menu a.active { background: var(--accent); color: white; font-weight: bold; }
+        .sidebar-menu a .icon { font-size: 1rem; width: 20px; text-align: center; }
+
+        /* CONTENT AREA */
+        .content-area { display: flex; flex-direction: column; gap: 24px; }
+
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 2px 12px rgba(61,43,31,0.08);
+        }
+        .content-card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* PROFILE FORM */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .form-row.full { grid-template-columns: 1fr; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.82rem; color: var(--text-muted); font-family: sans-serif; }
+        .form-group input, .form-group select {
+            padding: 10px 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 7px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: var(--brown);
+            background: var(--cream);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+        .form-group input[readonly] { background: #f5f5f5; color: #999; cursor: not-allowed; }
+
+        .btn-save {
+            padding: 11px 28px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-save:hover { background: #a93226; }
+
+        /* ORDER HISTORY */
+        .order-table { width: 100%; border-collapse: collapse; }
+        .order-table th {
+            text-align: left;
+            padding: 10px 14px;
+            background: var(--light);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-family: sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .order-table td {
+            padding: 13px 14px;
+            border-bottom: 1px solid var(--light);
+            font-size: 0.88rem;
+        }
+        .order-table tr:last-child td { border-bottom: none; }
+        .order-table tr:hover td { background: #fdfaf6; }
+
+        .status-badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-family: sans-serif;
+            font-weight: bold;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d1e7dd; color: #0f5132; }
+        .status-rejected { background: #f8d7da; color: #842029; }
+
+        .btn-view-order {
+            padding: 5px 12px;
+            border: 1px solid var(--brown);
+            background: transparent;
+            border-radius: 5px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            color: var(--brown);
+            font-family: inherit;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-view-order:hover { background: var(--brown); color: white; }
+
+        /* CHANGE PASSWORD */
+        .password-tips {
+            background: var(--light);
+            border-radius: 7px;
+            padding: 12px 16px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    {% include 'includes/header.html' %}
+
+    <!-- BANNER -->
+    <div class="page-header">
+        <div class="container">
+            <div class="profile-banner">
+                <div class="avatar">N</div>
+                <div class="profile-banner-info">
+                    <h1>Nguyễn Văn Mẫu</h1>
+                    <p>nguyen.van.mau@email.com · Thành viên từ 01/2024</p>
+                </div>
+                <span class="profile-badge">👤 User</span>
+            </div>
+        </div>
+    </div>
+
+    <section class="profile-section">
+        <div class="container">
+            <div class="profile-layout">
+
+                <!-- SIDEBAR -->
+                <div class="sidebar-menu">
+                    <a href="#info" class="active"><span class="icon">👤</span> Thông tin cá nhân</a>
+                    <a href="#orders"><span class="icon">📦</span> Đơn hàng của tôi</a>
+                    <a href="#password"><span class="icon">🔒</span> Đổi mật khẩu</a>
+                    <a href="{% url 'books:home' %}"><span class="icon">🚪</span> Đăng xuất</a>
+                </div>
+
+                <!-- CONTENT -->
+                <div class="content-area">
+
+                    <!-- THÔNG TIN CÁ NHÂN -->
+                    <div class="content-card" id="info">
+                        <h3>👤 Thông tin cá nhân</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Họ và tên</label>
+                                <input type="text" value="Nguyễn Văn Mẫu">
+                            </div>
+                            <div class="form-group">
+                                <label>Tên đăng nhập</label>
+                                <input type="text" value="nguyen.van.mau" readonly>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" value="nguyen.van.mau@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Số điện thoại</label>
+                                <input type="tel" value="0912 345 678">
+                            </div>
+                        </div>
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label>Địa chỉ</label>
+                                <input type="text" value="123 Đường Mẫu, Quận 1, TP.HCM">
+                            </div>
+                        </div>
+                        <button class="btn-save">💾 Lưu thay đổi</button>
+                    </div>
+
+                    <!-- LỊCH SỬ ĐƠN HÀNG -->
+                    <div class="content-card" id="orders">
+                        <h3>📦 Lịch sử đơn hàng</h3>
+                        <table class="order-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Sách</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Trạng thái</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#DH001</td>
+                                    <td>Sách Hay Số 1</td>
+                                    <td style="color:var(--accent);font-weight:bold">189.000đ</td>
+                                    <td>01/03/2024</td>
+                                    <td><span class="status-badge status-approved">Đã duyệt</span></td>
+                                    <td><a href="#" class="btn-view-order">Xem</a></td>
+                                </tr>
+                                <tr>
+                                    <td>#DH002</td>
+                                    <td>Sách Hay Số 3</td>
+                                    <td style="color:var(--accent);font-weight:bold">378.000đ</td>
+                                    <td>15/03/2024</td>
+                                    <td><span class="status-badge status-pending">Chờ duyệt</span></td>
+                                    <td><a href="#" class="btn-view-order">Xem</a></td>
+                                </tr>
+                                <tr>
+                                    <td>#DH003</td>
+                                    <td>Sách Hay Số 5</td>
+                                    <td style="color:var(--accent);font-weight:bold">229.000đ</td>
+                                    <td>20/03/2024</td>
+                                    <td><span class="status-badge status-rejected">Từ chối</span></td>
+                                    <td><a href="#" class="btn-view-order">Xem</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- ĐỔI MẬT KHẨU -->
+                    <div class="content-card" id="password">
+                        <h3>🔒 Đổi mật khẩu</h3>
+                        <div class="password-tips">
+                            Mật khẩu cần ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số.
+                        </div>
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label>Mật khẩu hiện tại</label>
+                                <input type="password" placeholder="••••••••">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Mật khẩu mới</label>
+                                <input type="password" placeholder="••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label>Xác nhận mật khẩu mới</label>
+                                <input type="password" placeholder="••••••••">
+                            </div>
+                        </div>
+                        <button class="btn-save">🔒 Cập nhật mật khẩu</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% include 'includes/footer.html' %}
+    {% include 'partials/messages.html' %}
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!-- templates/admin/panels/overview.html -->
+<div class="panel active" id="panel-overview">
+    <div class="section-title">Tổng quan hệ thống</div>
+    <div class="section-sub">Dữ liệu sẽ được cập nhật tự động từ database</div>
+
+    <div class="stat-grid">
+        <div class="stat-card c1">
+            <div class="stat-icon">📖</div>
+            <div class="stat-label">Tổng sách</div>
+            <div class="stat-value">17</div>
+            <div class="stat-change">↑ 2 sách mới tháng này</div>
+        </div>
+        <div class="stat-card c2">
+            <div class="stat-icon">📦</div>
+            <div class="stat-label">Đơn hàng</div>
+            <div class="stat-value">34</div>
+            <div class="stat-change">↑ 5 đơn hôm nay</div>
+        </div>
+        <div class="stat-card c3">
+            <div class="stat-icon">👥</div>
+            <div class="stat-label">Người dùng</div>
+            <div class="stat-value">128</div>
+            <div class="stat-change">↑ 12 thành viên mới</div>
+        </div>
+        <div class="stat-card c4">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-label">Chờ duyệt</div>
+            <div class="stat-value">3</div>
+            <div class="stat-change down">Cần xử lý ngay</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>📦 Đơn hàng gần đây</h4>
+            <a class="card-header-action" onclick="showPanel('orders', document.querySelector('[onclick*=orders]'))">Xem tất cả →</a>
+        </div>
+        <table>
+            <thead>
+                <tr><th>Mã đơn</th><th>Khách hàng</th><th>Sách</th><th>Tổng tiền</th><th>Trạng thái</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>#DH001</td><td>Nguyễn Văn A</td><td>Sách Hay Số 1</td><td style="color:var(--gold)">189.000đ</td><td><span class="badge badge-pending">Chờ duyệt</span></td></tr>
+                <tr><td>#DH002</td><td>Trần Thị B</td><td>Sách Hay Số 3</td><td style="color:var(--gold)">229.000đ</td><td><span class="badge badge-approved">Đã duyệt</span></td></tr>
+                <tr><td>#DH003</td><td>Lê Văn C</td><td>Sách Hay Số 5</td><td style="color:var(--gold)">378.000đ</td><td><span class="badge badge-pending">Chờ duyệt</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>

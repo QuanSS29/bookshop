@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookshop - Đặt hàng</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --cream: #faf6f1; --brown: #3d2b1f; --accent: #c0392b;
+            --gold: #d4a853; --light: #f0e9df; --text-muted: #7a6555;
+        }
+        body { background: var(--cream); font-family: 'Georgia', serif; color: var(--brown); }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+
+        .page-header { background: var(--brown); padding: 32px 0; text-align: center; }
+        .page-header h1 { color: var(--gold); font-size: 1.8rem; letter-spacing: 2px; }
+
+        /* STEPS */
+        .steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0;
+            padding: 24px 0;
+            background: white;
+            border-bottom: 2px solid var(--light);
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #bbb;
+            font-family: sans-serif;
+        }
+        .step.active { color: var(--brown); font-weight: bold; }
+        .step.done { color: #27ae60; }
+        .step-num {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #ddd;
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .step.active .step-num { background: var(--accent); }
+        .step.done .step-num { background: #27ae60; }
+        .step-line { width: 60px; height: 2px; background: #ddd; margin: 0 8px; }
+        .step-line.done { background: #27ae60; }
+
+        /* ORDER LAYOUT */
+        .order-section { padding: 36px 0 60px; }
+        .order-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 32px;
+            align-items: start;
+        }
+
+        /* FORM */
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 2px 12px rgba(61,43,31,0.08);
+            margin-bottom: 20px;
+        }
+        .form-card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .form-row.full { grid-template-columns: 1fr; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.83rem; color: var(--text-muted); font-family: sans-serif; }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 7px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: var(--brown);
+            background: var(--cream);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus { border-color: var(--accent); }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+
+        /* PAYMENT OPTIONS */
+        .payment-options { display: flex; flex-direction: column; gap: 10px; }
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .payment-option:hover { border-color: var(--accent); background: #fff9f9; }
+        .payment-option input[type="radio"] { accent-color: var(--accent); width: 16px; height: 16px; }
+        .payment-option-info { flex: 1; }
+        .payment-option-info strong { font-size: 0.9rem; display: block; }
+        .payment-option-info small { font-size: 0.78rem; color: var(--text-muted); }
+        .payment-icon { font-size: 1.4rem; }
+
+        /* ORDER SUMMARY */
+        .summary-box {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(61,43,31,0.08);
+            position: sticky;
+            top: 24px;
+        }
+        .summary-box h3 {
+            font-size: 1.05rem;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--light);
+        }
+        .order-item {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--light);
+        }
+        .order-item img {
+            width: 48px; height: 62px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .order-item-info { flex: 1; }
+        .order-item-info h4 { font-size: 0.85rem; margin-bottom: 3px; }
+        .order-item-info p { font-size: 0.78rem; color: var(--text-muted); }
+        .order-item-price { font-size: 0.9rem; font-weight: bold; color: var(--accent); align-self: center; }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            margin-top: 12px;
+            color: var(--text-muted);
+        }
+        .summary-row.total {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--brown);
+            border-top: 2px solid var(--light);
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+        .summary-row.total span:last-child { color: var(--accent); }
+
+        .btn-place-order {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            margin-top: 16px;
+            transition: background 0.2s;
+        }
+        .btn-place-order:hover { background: #a93226; }
+        .terms-note {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    {% include 'includes/header.html' %}
+
+    <div class="page-header">
+        <h1>📦 Đặt Hàng</h1>
+    </div>
+
+    <!-- STEPS -->
+    <div class="steps">
+        <div class="step done">
+            <div class="step-num">✓</div>
+            <span>Giỏ hàng</span>
+        </div>
+        <div class="step-line done"></div>
+        <div class="step active">
+            <div class="step-num">2</div>
+            <span>Thông tin đặt hàng</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <span>Xác nhận</span>
+        </div>
+    </div>
+
+    <section class="order-section">
+        <div class="container">
+            <div class="order-layout">
+                <!-- FORM BÊN TRÁI -->
+                <div>
+                    <!-- THÔNG TIN GIAO HÀNG -->
+                    <div class="form-card">
+                        <h3>📍 Thông tin giao hàng</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Họ và tên *</label>
+                                <input type="text" placeholder="Nguyễn Văn A">
+                            </div>
+                            <div class="form-group">
+                                <label>Số điện thoại *</label>
+                                <input type="tel" placeholder="0912 345 678">
+                            </div>
+                        </div>
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" placeholder="example@email.com">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Tỉnh/Thành phố *</label>
+                                <select>
+                                    <option>Chọn tỉnh/thành phố</option>
+                                    <option>Hà Nội</option>
+                                    <option>TP. Hồ Chí Minh</option>
+                                    <option>Đà Nẵng</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Quận/Huyện *</label>
+                                <select>
+                                    <option>Chọn quận/huyện</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label>Địa chỉ cụ thể *</label>
+                                <input type="text" placeholder="Số nhà, tên đường...">
+                            </div>
+                        </div>
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label>Ghi chú đơn hàng</label>
+                                <textarea placeholder="Ghi chú thêm cho đơn hàng (không bắt buộc)..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PHƯƠNG THỨC THANH TOÁN -->
+                    <div class="form-card">
+                        <h3>💳 Phương thức thanh toán</h3>
+                        <div class="payment-options">
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="cod" checked>
+                                <span class="payment-icon">💵</span>
+                                <div class="payment-option-info">
+                                    <strong>Thanh toán khi nhận hàng (COD)</strong>
+                                    <small>Trả tiền mặt khi nhận được sách</small>
+                                </div>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="bank">
+                                <span class="payment-icon">🏦</span>
+                                <div class="payment-option-info">
+                                    <strong>Chuyển khoản ngân hàng</strong>
+                                    <small>Chuyển khoản trước khi giao hàng</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TÓM TẮT ĐƠN HÀNG -->
+                <div class="summary-box">
+                    <h3>🛒 Đơn hàng của bạn</h3>
+
+                    {% for i in "123" %}
+                    <div class="order-item">
+                        <img src="{% static 'images/book' %}{{ forloop.counter }}.jpg" alt="Sách {{ forloop.counter }}">
+                        <div class="order-item-info">
+                            <h4>Sách Hay Số {{ forloop.counter }}</h4>
+                            <p>x{{ forloop.counter }}</p>
+                        </div>
+                        <div class="order-item-price">189.000đ</div>
+                    </div>
+                    {% endfor %}
+
+                    <div class="summary-row"><span>Tạm tính</span><span>1.134.000đ</span></div>
+                    <div class="summary-row"><span>Phí vận chuyển</span><span>30.000đ</span></div>
+                    <div class="summary-row total"><span>Tổng cộng</span><span>1.164.000đ</span></div>
+
+                    <button class="btn-place-order">✅ Xác nhận đặt hàng</button>
+                    <p class="terms-note">Bằng cách đặt hàng, bạn đồng ý với điều khoản sử dụng của chúng tôi.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% include 'includes/footer.html' %}
+    {% include 'partials/messages.html' %}
+</body>
+</html>

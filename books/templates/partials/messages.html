@@ -1,0 +1,42 @@
+
+<!-- Toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+<!-- jQuery (toastr cần) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+    toastr.options = {
+        "positionClass":  "toast-top-right",   // vị trí: top-right / top-center / bottom-right ...
+        "timeOut":        "3000",               // tự tắt sau 3 giây
+        "extendedTimeOut":"1000",               // thêm 1s khi hover
+        "progressBar":    true,                 // thanh tiến trình
+        "closeButton":    true,                 // nút ✕ đóng thủ công
+        "newestOnTop":    true,                 // thông báo mới nhất hiện trên cùng
+        "preventDuplicates": false,
+    };
+
+    // ── Hiển thị message từ Django ────────────────────
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                toastr.success("{{ message|escapejs }}");
+
+            {% elif message.tags == 'error' %}
+                toastr.error("{{ message|escapejs }}");
+
+            {% elif message.tags == 'warning' %}
+                toastr.warning("{{ message|escapejs }}");
+
+            {% elif message.tags == 'info' %}
+                toastr.info("{{ message|escapejs }}");
+
+            {% else %}
+                toastr.info("{{ message|escapejs }}");
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</script>

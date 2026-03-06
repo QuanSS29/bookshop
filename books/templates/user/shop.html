@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="vi">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookshop - Cửa hàng</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --cream: #faf6f1;
+            --brown: #3d2b1f;
+            --accent: #c0392b;
+            --gold: #d4a853;
+            --light: #f0e9df;
+            --text-muted: #7a6555;
+        }
+
+        body { background: var(--cream); font-family: 'Georgia', serif; color: var(--brown); }
+
+        /* SHOP HERO */
+        .shop-hero {
+            background: var(--brown);
+            padding: 48px 0 32px;
+            text-align: center;
+        }
+        .shop-hero h1 {
+            font-size: 2.2rem;
+            color: var(--gold);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        .shop-hero p { color: #c9b8a8; font-size: 1rem; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        /* FILTER BAR */
+        .filter-bar {
+            background: white;
+            border-bottom: 2px solid var(--light);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .filter-inner {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 220px;
+            display: flex;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 9px 14px;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            font-size: 0.9rem;
+            background: var(--cream);
+        }
+        .search-box button {
+            padding: 9px 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .filter-select {
+            padding: 9px 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            background: var(--cream);
+            font-family: inherit;
+            font-size: 0.88rem;
+            color: var(--brown);
+            cursor: pointer;
+            outline: none;
+        }
+        .result-count {
+            margin-left: auto;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* BOOK GRID */
+        .shop-section { padding: 40px 0; }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 28px;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(61,43,31,0.08);
+            transition: transform 0.25s, box-shadow 0.25s;
+            cursor: pointer;
+        }
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(61,43,31,0.16);
+        }
+        .book-card .img-wrap {
+            position: relative;
+            overflow: hidden;
+            height: 240px;
+            background: var(--light);
+        }
+        .book-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.35s;
+        }
+        .book-card:hover img { transform: scale(1.05); }
+
+        .badge-status {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--accent);
+            color: white;
+            font-size: 0.72rem;
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-family: sans-serif;
+            letter-spacing: 0.5px;
+        }
+        .badge-status.new { background: #27ae60; }
+
+        .book-info { padding: 14px 16px 16px; }
+        .book-info h3 {
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .book-info .author {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        .book-info .price {
+            font-size: 1.05rem;
+            color: var(--accent);
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        .card-actions { display: flex; gap: 8px; }
+        .btn-detail {
+            flex: 1;
+            padding: 8px;
+            border: 1.5px solid var(--brown);
+            background: transparent;
+            color: var(--brown);
+            border-radius: 6px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            text-align: center;
+            text-decoration: none;
+        }
+        .btn-detail:hover { background: var(--brown); color: white; }
+        .btn-cart {
+            flex: 1;
+            padding: 8px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        .btn-cart:hover { background: #a93226; }
+
+        /* PAGINATION */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 48px;
+            padding-bottom: 48px;
+        }
+        .page-link {
+            padding: 8px 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--brown);
+            font-size: 0.9rem;
+            background: white;
+            transition: all 0.2s;
+        }
+        .page-link:hover, .page-link.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    {% include 'includes/header.html' %}
+
+    <div class="shop-hero">
+        <div class="container">
+            <h1>📚 Cửa Hàng Sách</h1>
+            <p>Khám phá kho sách phong phú — tìm cuốn sách dành cho bạn</p>
+        </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+        <div class="container">
+            <div class="filter-inner">
+                <div class="search-box">
+                    <input type="text" placeholder="Tìm kiếm tên sách, tác giả...">
+                    <button>🔍</button>
+                </div>
+                <select class="filter-select">
+                    <option>Thể loại</option>
+                    <option>Văn học</option>
+                    <option>Kỹ năng sống</option>
+                    <option>Khoa học</option>
+                    <option>Lịch sử</option>
+                </select>
+                <select class="filter-select">
+                    <option>Sắp xếp theo</option>
+                    <option>Giá thấp → cao</option>
+                    <option>Giá cao → thấp</option>
+                    <option>Mới nhất</option>
+                    <option>Bán chạy</option>
+                </select>
+                <span class="result-count">Hiển thị 12 / 17 sách</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOOK LIST -->
+    <section class="shop-section">
+        <div class="container">
+            <div class="book-grid">
+                {% for i in books_to_show %}
+                <div class="book-card">
+                    <div class="img-wrap">
+                        <img src="{% static 'images/book' %}{{ i }}.jpg" alt="Sách {{ i }}" loading="lazy">
+                        {% if i|divisibleby:4 %}
+                            <span class="badge-status new">Mới</span>
+                        {% elif i|divisibleby:3 %}
+                            <span class="badge-status">Sale</span>
+                        {% endif %}
+                    </div>
+                    <div class="book-info">
+                        <h3>Sách Hay Số {{ i }}</h3>
+                        <p class="author">Tác giả mẫu {{ i }}</p>
+                        <p class="price">{% if i|divisibleby:3 %}189.000đ{% else %}229.000đ{% endif %}</p>
+                        <div class="card-actions">
+                            <a href="{% url 'books:product_detail' i %}" class="btn-detail">Chi tiết</a>
+                            <button class="btn-cart">+ Giỏ hàng</button>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p>Không có sách nào.</p>
+                {% endfor %}
+            </div>
+
+            <!-- PAGINATION -->
+            <div class="pagination">
+                {% if current_page > 1 %}
+                    <a href="?page={{ current_page|add:-1 }}" class="page-link">« Trước</a>
+                {% endif %}
+                {% for p in page_range %}
+                    <a href="?page={{ p }}" class="page-link {% if p == current_page %}active{% endif %}">{{ p }}</a>
+                {% endfor %}
+                {% if current_page < total_pages %}
+                    <a href="?page={{ current_page|add:1 }}" class="page-link">Sau »</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    {% include 'includes/footer.html' %}
+    {% include 'partials/messages.html' %}
+</body>
+</html>

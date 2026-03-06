@@ -1,0 +1,63 @@
+<!-- templates/admin/panels/orders.html -->
+<div class="panel" id="panel-orders">
+    <div class="section-title">Quản lí đơn hàng</div>
+    <div class="section-sub">Duyệt, từ chối và theo dõi tất cả đơn hàng</div>
+
+    <div class="toolbar">
+        <div class="toolbar-search">
+            <span>🔍</span>
+            <input type="text" placeholder="Tìm mã đơn, tên khách...">
+        </div>
+        <select class="toolbar-select">
+            <option>Tất cả trạng thái</option>
+            <option>Chờ duyệt</option>
+            <option>Đã duyệt</option>
+            <option>Từ chối</option>
+        </select>
+        <select class="toolbar-select">
+            <option>Mới nhất</option>
+            <option>Cũ nhất</option>
+            <option>Giá cao → thấp</option>
+        </select>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr><th>Mã đơn</th><th>Khách hàng</th><th>Sách</th><th>SL</th><th>Tổng tiền</th><th>Ngày đặt</th><th>Trạng thái</th><th>Thao tác</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>#DH001</td><td>Nguyễn Văn A</td><td>Sách Hay Số 1</td><td>1</td>
+                    <td style="color:var(--gold)">189.000đ</td><td>01/03/2024</td>
+                    <td><span class="badge badge-pending">Chờ duyệt</span></td>
+                    <td><div class="action-group"><button class="btn-xs btn-approve">✓ Duyệt</button><button class="btn-xs btn-reject">✕ Từ chối</button></div></td>
+                </tr>
+                <tr>
+                    <td>#DH002</td><td>Trần Thị B</td><td>Sách Hay Số 3</td><td>2</td>
+                    <td style="color:var(--gold)">458.000đ</td><td>02/03/2024</td>
+                    <td><span class="badge badge-approved">Đã duyệt</span></td>
+                    <td><div class="action-group"><button class="btn-xs btn-reject">✕ Hủy</button></div></td>
+                </tr>
+                <tr>
+                    <td>#DH003</td><td>Lê Văn C</td><td>Sách Hay Số 5</td><td>1</td>
+                    <td style="color:var(--gold)">229.000đ</td><td>03/03/2024</td>
+                    <td><span class="badge badge-pending">Chờ duyệt</span></td>
+                    <td><div class="action-group"><button class="btn-xs btn-approve">✓ Duyệt</button><button class="btn-xs btn-reject">✕ Từ chối</button></div></td>
+                </tr>
+                <tr>
+                    <td>#DH004</td><td>Phạm Thị D</td><td>Sách Hay Số 2</td><td>3</td>
+                    <td style="color:var(--gold)">567.000đ</td><td>04/03/2024</td>
+                    <td><span class="badge badge-rejected">Từ chối</span></td>
+                    <td><span style="color:var(--muted);font-size:0.75rem">Đã xử lý</span></td>
+                </tr>
+                <tr>
+                    <td>#DH005</td><td>Hoàng Văn E</td><td>Sách Hay Số 7</td><td>1</td>
+                    <td style="color:var(--gold)">189.000đ</td><td>05/03/2024</td>
+                    <td><span class="badge badge-pending">Chờ duyệt</span></td>
+                    <td><div class="action-group"><button class="btn-xs btn-approve">✓ Duyệt</button><button class="btn-xs btn-reject">✕ Từ chối</button></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

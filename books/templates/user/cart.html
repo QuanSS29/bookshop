@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookshop - Giỏ hàng</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --cream: #faf6f1; --brown: #3d2b1f; --accent: #c0392b;
+            --gold: #d4a853; --light: #f0e9df; --text-muted: #7a6555;
+        }
+        body { background: var(--cream); font-family: 'Georgia', serif; color: var(--brown); }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+        .page-header {
+            background: var(--brown);
+            padding: 32px 0;
+            text-align: center;
+        }
+        .page-header h1 { color: var(--gold); font-size: 1.8rem; letter-spacing: 2px; }
+
+        .cart-section { padding: 40px 0 60px; }
+        .cart-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 32px;
+            align-items: start;
+        }
+
+        /* CART ITEMS */
+        .cart-items { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(61,43,31,0.08); }
+        .cart-header {
+            background: var(--light);
+            padding: 14px 24px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 40px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-family: sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            gap: 12px;
+        }
+        .cart-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 40px;
+            align-items: center;
+            padding: 18px 24px;
+            gap: 12px;
+            border-bottom: 1px solid var(--light);
+            transition: background 0.15s;
+        }
+        .cart-row:hover { background: #fdfaf6; }
+        .cart-row:last-child { border-bottom: none; }
+
+        .book-cell { display: flex; align-items: center; gap: 14px; }
+        .book-cell img {
+            width: 56px; height: 72px;
+            object-fit: cover;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+        .book-cell-info h4 { font-size: 0.92rem; margin-bottom: 3px; }
+        .book-cell-info p { font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
+
+        .price-cell { font-size: 0.95rem; font-weight: bold; color: var(--accent); }
+
+        .qty-cell .qty-control {
+            display: flex;
+            align-items: center;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+            width: fit-content;
+        }
+        .qty-control button {
+            width: 30px; height: 30px;
+            background: var(--light);
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            color: var(--brown);
+        }
+        .qty-control button:hover { background: #ddd; }
+        .qty-control input {
+            width: 40px; height: 30px;
+            text-align: center;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .subtotal-cell { font-size: 0.95rem; font-weight: bold; color: var(--brown); }
+        .remove-btn {
+            width: 30px; height: 30px;
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #999;
+            font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .remove-btn:hover { background: #fee; border-color: var(--accent); color: var(--accent); }
+
+        .cart-empty {
+            text-align: center;
+            padding: 60px 24px;
+            color: var(--text-muted);
+        }
+        .cart-empty p { font-size: 1.1rem; margin-bottom: 20px; }
+        .btn-shop {
+            display: inline-block;
+            padding: 12px 28px;
+            background: var(--accent);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: inherit;
+        }
+
+        /* SUMMARY BOX */
+        .summary-box {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(61,43,31,0.08);
+            position: sticky;
+            top: 24px;
+        }
+        .summary-box h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--light);
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            color: var(--text-muted);
+        }
+        .summary-row.total {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--brown);
+            border-top: 2px solid var(--light);
+            padding-top: 14px;
+            margin-top: 14px;
+        }
+        .summary-row.total span:last-child { color: var(--accent); }
+        .promo-row {
+            display: flex;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .promo-row input {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        .promo-row button {
+            padding: 9px 14px;
+            background: var(--light);
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            color: var(--brown);
+        }
+        .btn-checkout {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            margin-top: 8px;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+        .btn-checkout:hover { background: #a93226; }
+        .continue-link {
+            display: block;
+            text-align: center;
+            margin-top: 12px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+        .continue-link:hover { color: var(--accent); }
+    </style>
+</head>
+<body>
+    {% include 'includes/header.html' %}
+
+    <div class="page-header">
+        <h1>🛒 Giỏ Hàng</h1>
+    </div>
+
+    <section class="cart-section">
+        <div class="container">
+            <div class="cart-layout">
+                <!-- DANH SÁCH SẢN PHẨM -->
+                <div class="cart-items">
+                    <div class="cart-header">
+                        <span>Sản phẩm</span>
+                        <span>Đơn giá</span>
+                        <span>Số lượng</span>
+                        <span>Thành tiền</span>
+                        <span></span>
+                    </div>
+
+                    {% for i in "123" %}
+                    <div class="cart-row">
+                        <div class="book-cell">
+                            <img src="{% static 'images/book' %}{{ forloop.counter }}.jpg" alt="Sách {{ forloop.counter }}">
+                            <div class="book-cell-info">
+                                <h4>Sách Hay Số {{ forloop.counter }}</h4>
+                                <p>Tác giả mẫu</p>
+                            </div>
+                        </div>
+                        <div class="price-cell">189.000đ</div>
+                        <div class="qty-cell">
+                            <div class="qty-control">
+                                <button>−</button>
+                                <input type="number" value="{{ forloop.counter }}" min="1">
+                                <button>+</button>
+                            </div>
+                        </div>
+                        <div class="subtotal-cell">{% if forloop.counter == 1 %}189.000đ{% elif forloop.counter == 2 %}378.000đ{% else %}567.000đ{% endif %}</div>
+                        <button class="remove-btn">✕</button>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- TỔNG KẾT -->
+                <div class="summary-box">
+                    <h3>Tóm tắt đơn hàng</h3>
+                    <div class="summary-row"><span>Tạm tính (3 cuốn)</span><span>1.134.000đ</span></div>
+                    <div class="summary-row"><span>Phí vận chuyển</span><span>30.000đ</span></div>
+                    <div class="summary-row"><span>Giảm giá</span><span style="color:#27ae60">−0đ</span></div>
+
+                    <div class="promo-row">
+                        <input type="text" placeholder="Mã giảm giá">
+                        <button>Áp dụng</button>
+                    </div>
+
+                    <div class="summary-row total">
+                        <span>Tổng cộng</span>
+                        <span>1.164.000đ</span>
+                    </div>
+
+                    <a href="{% url 'books:order' %}" class="btn-checkout">⚡ Tiến hành đặt hàng</a>
+                    <a href="{% url 'books:shop' %}" class="continue-link">← Tiếp tục mua sắm</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% include 'includes/footer.html' %}
+    {% include 'partials/messages.html' %}
+</body>
+</html>

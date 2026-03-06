@@ -1,0 +1,65 @@
+<!-- templates/admin/panels/users.html -->
+<div class="panel" id="panel-users">
+    <div class="section-title">Quản lí người dùng</div>
+    <div class="section-sub">Phân quyền và quản lí tài khoản người dùng</div>
+
+    <div class="toolbar">
+        <div class="toolbar-search">
+            <span>🔍</span>
+            <input type="text" placeholder="Tìm tên, email...">
+        </div>
+        <select class="toolbar-select">
+            <option>Tất cả role</option>
+            <option>Admin</option>
+            <option>User</option>
+            <option>Guest</option>
+        </select>
+        <select class="toolbar-select">
+            <option>Tất cả trạng thái</option>
+            <option>Đang hoạt động</option>
+            <option>Bị khóa</option>
+        </select>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Tên</th><th>Email</th><th>Role</th><th>Trạng thái</th><th>Ngày tạo</th><th>Thao tác</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="color:var(--muted)">#1</td><td>Admin System</td>
+                    <td style="color:var(--muted)">admin@book.com</td>
+                    <td><span class="badge badge-admin">Admin</span></td>
+                    <td><span class="badge badge-active">Hoạt động</span></td>
+                    <td style="color:var(--muted)">01/01/2024</td>
+                    <td><span style="color:var(--muted);font-size:0.75rem">—</span></td>
+                </tr>
+                <tr>
+                    <td style="color:var(--muted)">#2</td><td>Nguyễn Văn A</td>
+                    <td style="color:var(--muted)">a@email.com</td>
+                    <td><span class="badge badge-user">User</span></td>
+                    <td><span class="badge badge-active">Hoạt động</span></td>
+                    <td style="color:var(--muted)">05/01/2024</td>
+                    <td><div class="action-group"><button class="btn-xs btn-edit">✎ Sửa</button><button class="btn-xs btn-lock">🔒 Khóa</button></div></td>
+                </tr>
+                <tr>
+                    <td style="color:var(--muted)">#3</td><td>Trần Thị B</td>
+                    <td style="color:var(--muted)">b@email.com</td>
+                    <td><span class="badge badge-user">User</span></td>
+                    <td><span class="badge badge-inactive">Bị khóa</span></td>
+                    <td style="color:var(--muted)">10/01/2024</td>
+                    <td><div class="action-group"><button class="btn-xs btn-edit">✎ Sửa</button><button class="btn-xs btn-approve">🔓 Mở khóa</button></div></td>
+                </tr>
+                <tr>
+                    <td style="color:var(--muted)">#4</td><td>Lê Văn C</td>
+                    <td style="color:var(--muted)">c@email.com</td>
+                    <td><span class="badge badge-user">User</span></td>
+                    <td><span class="badge badge-active">Hoạt động</span></td>
+                    <td style="color:var(--muted)">15/02/2024</td>
+                    <td><div class="action-group"><button class="btn-xs btn-edit">✎ Sửa</button><button class="btn-xs btn-lock">🔒 Khóa</button></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

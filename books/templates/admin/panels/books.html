@@ -1,0 +1,103 @@
+<!-- templates/admin/panels/books.html -->
+<div class="panel" id="panel-books">
+    <div class="section-title">Quản lí sách</div>
+    <div class="section-sub">Thêm, sửa, xóa và quản lí trạng thái sách</div>
+
+    <div class="toolbar">
+        <form method="GET" action="{% url 'books:dashboard' %}?panel=books" style="display:contents">
+            <input type="hidden" name="panel" value="books">
+            <div class="toolbar-search">
+                <span>🔍</span>
+                <input type="text" name="search" placeholder="Tìm tên sách, tác giả..." value="{{ search }}">
+            </div>
+            <select class="toolbar-select" name="status" onchange="this.form.submit()">
+                <option value="">Tất cả trạng thái</option>
+                <option value="active"   {% if selected_status == 'active' %}selected{% endif %}>Đang bán</option>
+                <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Ngừng bán</option>
+            </select>
+            <select class="toolbar-select" name="sort" onchange="this.form.submit()">
+                <option value="newest"     {% if selected_sort == 'newest' %}selected{% endif %}>Mới nhất</option>
+                <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Giá cao → thấp</option>
+                <option value="price_asc"  {% if selected_sort == 'price_asc' %}selected{% endif %}>Giá thấp → cao</option>
+                <option value="name_asc"   {% if selected_sort == 'name_asc' %}selected{% endif %}>Tên A → Z</option>
+            </select>
+            <button type="submit" class="btn-add" style="background:var(--surface);color:var(--text);border:1px solid var(--border)">🔍 Lọc</button>
+        </form>
+        <a href="{% url 'books:book_create' %}" class="btn-add">+ Thêm sách</a>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ảnh</th>
+                    <th>Tên sách</th>
+                    <th>Tác giả</th>
+                    <th>Danh mục</th>
+                    <th>Giá</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td style="color:var(--muted)">#{{ book.id }}</td>
+                    <td>
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}"
+                                 style="width:36px;height:46px;object-fit:cover;border-radius:4px;border:1px solid var(--border)">
+                        {% else %}
+                            <div style="width:36px;height:46px;background:var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--muted)">N/A</div>
+                        {% endif %}
+                    </td>
+                    <td>{{ book.title }}</td>
+                    <td style="color:var(--muted)">{{ book.author|default:"—" }}</td>
+                    <td style="color:var(--muted)">{{ book.category.name|default:"—" }}</td>
+                    <td class="price-cell" style="color:var(--gold)">{{ book.price|floatformat:0 }}</td>
+                    <td>
+                        {% if book.status == 'active' %}
+                            <span class="badge badge-active">Đang bán</span>
+                        {% else %}
+                            <span class="badge badge-inactive">Ngừng bán</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-group">
+                            <a href="{% url 'books:book_edit' book.id %}" class="btn-xs btn-edit">✎ Sửa</a>
+                            <form method="POST" action="{% url 'books:book_delete' book.id %}"
+                                  style="display:inline"
+                                  onsubmit="return confirm('Xóa sách {{ book.title }}?')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-xs btn-delete">✕ Xóa</button>
+                            </form>
+                            <form method="POST" action="{% url 'books:book_toggle' book.id %}" style="display:inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-xs btn-lock">
+                                    {% if book.status == 'active' %}⏸ Ẩn{% else %}▶ Hiện{% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align:center;color:var(--muted);padding:32px">
+                        Chưa có sách nào. <a href="{% url 'books:book_create' %}" style="color:var(--gold)">Thêm sách đầu tiên →</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.price-cell').forEach(el => {
+    const num = parseInt(el.textContent.replace(/\D/g, ''));
+    if (!isNaN(num)) {
+        el.textContent = num.toLocaleString('vi-VN') + ' VNĐ';
+    }
+});
+</script>

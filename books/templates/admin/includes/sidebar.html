@@ -1,0 +1,37 @@
+<!-- templates/admin/includes/sidebar.html -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <h2>📚 Bookshop</h2>
+        <span>Admin Panel</span>
+    </div>
+
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">Tổng quan</div>
+        <a href="javascript:void(0)" class="nav-item" onclick="showPanel('overview', this)">
+            <span class="nav-icon">📊</span> Tổng quan
+        </a>
+    </div>
+
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">Quản lí</div>
+        <a href="javascript:void(0)" class="nav-item" onclick="showPanel('orders', this)">
+            <span class="nav-icon">📦</span> Quản lí đơn hàng
+            <span class="nav-badge warn">3</span>
+        </a>
+        <a href="javascript:void(0)" class="nav-item" onclick="showPanel('books', this)">
+            <span class="nav-icon">📖</span> Quản lí sách
+        </a>
+        <a href="javascript:void(0)" class="nav-item" onclick="showPanel('users', this)">
+            <span class="nav-icon">👥</span> Quản lí người dùng
+            <span class="nav-badge">1</span>
+        </a>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-footer">
+        <a href="{% url 'books:shop' %}" class="btn-back-shop">
+            <span>🛒</span> Quay về Shop
+        </a>
+    </div>
+</aside>
