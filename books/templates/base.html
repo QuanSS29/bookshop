@@ -22,5 +22,28 @@
 
 {% block extra_js %}{% endblock %}
 
+
+
+
 </body>
+
+<script>
+$(document).on('submit', 'form[action*="/cart/add/"]', function(e) {
+    e.preventDefault();
+    const form = $(this);
+
+    $.ajax({
+        url:    form.attr('action'),
+        method: 'POST',
+        data:   form.serialize(),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        success: function(res) {
+            toastr.success(res.message);
+        },
+        error: function() {
+            toastr.error('Có lỗi xảy ra, thử lại nhé!');
+        }
+    });
+});
+</script>
 </html>

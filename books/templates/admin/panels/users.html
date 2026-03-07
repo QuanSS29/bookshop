@@ -4,62 +4,135 @@
     <div class="section-sub">Phân quyền và quản lí tài khoản người dùng</div>
 
     <div class="toolbar">
-        <div class="toolbar-search">
-            <span>🔍</span>
-            <input type="text" placeholder="Tìm tên, email...">
-        </div>
-        <select class="toolbar-select">
-            <option>Tất cả role</option>
-            <option>Admin</option>
-            <option>User</option>
-            <option>Guest</option>
-        </select>
-        <select class="toolbar-select">
-            <option>Tất cả trạng thái</option>
-            <option>Đang hoạt động</option>
-            <option>Bị khóa</option>
-        </select>
+        <form method="GET" action="{% url 'books:dashboard' %}" style="display:contents">
+            <input type="hidden" name="panel" value="users">
+            <div class="toolbar-search">
+                <span>🔍</span>
+                <input type="text" name="search"
+                       placeholder="Tìm tên, email..."
+                       value="{{ user_search }}">
+            </div>
+            <select class="toolbar-select" name="role" onchange="this.form.submit()">
+                <option value="">Tất cả role</option>
+                <option value="admin" {% if selected_role == 'admin' %}selected{% endif %}>Admin</option>
+                <option value="user"  {% if selected_role == 'user'  %}selected{% endif %}>User</option>
+        
+            </select>
+            <select class="toolbar-select" name="ustatus" onchange="this.form.submit()">
+                <option value="">Tất cả trạng thái</option>
+                <option value="active"   {% if selected_ustatus == 'active'   %}selected{% endif %}>Đang hoạt động</option>
+                <option value="inactive" {% if selected_ustatus == 'inactive' %}selected{% endif %}>Bị khóa</option>
+            </select>
+            <button type="submit"
+                    class="btn-add"
+                    style="background:var(--surface);color:var(--text);border:1px solid var(--border)">
+                🔍 Lọc
+            </button>
+        </form>
     </div>
 
     <div class="card">
         <table>
             <thead>
-                <tr><th>ID</th><th>Tên</th><th>Email</th><th>Role</th><th>Trạng thái</th><th>Ngày tạo</th><th>Thao tác</th></tr>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th>Thao tác</th>
+                </tr>
             </thead>
             <tbody>
+                {% for u in users %}
                 <tr>
-                    <td style="color:var(--muted)">#1</td><td>Admin System</td>
-                    <td style="color:var(--muted)">admin@book.com</td>
-                    <td><span class="badge badge-admin">Admin</span></td>
-                    <td><span class="badge badge-active">Hoạt động</span></td>
-                    <td style="color:var(--muted)">01/01/2024</td>
-                    <td><span style="color:var(--muted);font-size:0.75rem">—</span></td>
+                    <td style="color:var(--muted)">#{{ u.id }}</td>
+                    <td>{{ u.get_full_name|default:u.username }}</td>
+                    <td style="color:var(--muted)">{{ u.email|default:"—" }}</td>
+                    <td>
+                        {% if u.role == 'admin' %}
+                            <span class="badge badge-admin">Admin</span>
+                        {% elif u.role == 'user' %}
+                            <span class="badge badge-user">User</span>
+                        {% else %}
+                            <span class="badge badge-inactive">Guest</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if u.status == 'active' %}
+                            <span class="badge badge-active">Hoạt động</span>
+                        {% else %}
+                            <span class="badge badge-inactive">Bị khóa</span>
+                        {% endif %}
+                    </td>
+                    <td style="color:var(--muted)">{{ u.date_joined|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if u.role == 'admin' %}
+                            <span style="color:var(--muted);font-size:0.75rem">—</span>
+                        {% else %}
+                            <form method="POST"
+                                  action="{% url 'books:user_toggle' u.id %}"
+                                  style="display:inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="next_url"
+                                       value="?panel=users&page={{ users.number }}&search={{ user_search }}&role={{ selected_role }}&ustatus={{ selected_ustatus }}">
+                                {% if u.status == 'active' %}
+                                    <button type="submit" class="btn-xs btn-lock">🔒 Khóa</button>
+                                {% else %}
+                                    <button type="submit" class="btn-xs btn-approve">🔓 Mở khóa</button>
+                                {% endif %}
+                            </form>
+                        {% endif %}
+                    </td>
                 </tr>
+                {% empty %}
                 <tr>
-                    <td style="color:var(--muted)">#2</td><td>Nguyễn Văn A</td>
-                    <td style="color:var(--muted)">a@email.com</td>
-                    <td><span class="badge badge-user">User</span></td>
-                    <td><span class="badge badge-active">Hoạt động</span></td>
-                    <td style="color:var(--muted)">05/01/2024</td>
-                    <td><div class="action-group"><button class="btn-xs btn-edit">✎ Sửa</button><button class="btn-xs btn-lock">🔒 Khóa</button></div></td>
+                    <td colspan="7"
+                        style="text-align:center;color:var(--muted);padding:32px">
+                        Không tìm thấy người dùng nào.
+                    </td>
                 </tr>
-                <tr>
-                    <td style="color:var(--muted)">#3</td><td>Trần Thị B</td>
-                    <td style="color:var(--muted)">b@email.com</td>
-                    <td><span class="badge badge-user">User</span></td>
-                    <td><span class="badge badge-inactive">Bị khóa</span></td>
-                    <td style="color:var(--muted)">10/01/2024</td>
-                    <td><div class="action-group"><button class="btn-xs btn-edit">✎ Sửa</button><button class="btn-xs btn-approve">🔓 Mở khóa</button></div></td>
-                </tr>
-                <tr>
-                    <td style="color:var(--muted)">#4</td><td>Lê Văn C</td>
-                    <td style="color:var(--muted)">c@email.com</td>
-                    <td><span class="badge badge-user">User</span></td>
-                    <td><span class="badge badge-active">Hoạt động</span></td>
-                    <td style="color:var(--muted)">15/02/2024</td>
-                    <td><div class="action-group"><button class="btn-xs btn-edit">✎ Sửa</button><button class="btn-xs btn-lock">🔒 Khóa</button></div></td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
+
+    <!-- PHÂN TRANG -->
+    {% if users.has_other_pages %}
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 20px;border-top:1px solid var(--border);">
+        <span style="font-size:0.78rem;color:var(--muted)">
+            Trang {{ users.number }} / {{ users.paginator.num_pages }}
+            ({{ users.paginator.count }} người dùng)
+        </span>
+        <div style="display:flex;gap:6px;">
+            {% if users.has_previous %}
+                <a href="?panel=users&page={{ users.previous_page_number }}&search={{ user_search }}&role={{ selected_role }}&ustatus={{ selected_ustatus }}"
+                   style="padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);text-decoration:none;font-size:0.8rem;">
+                    ← Trước
+                </a>
+            {% endif %}
+
+            {% for num in users.paginator.page_range %}
+                {% if users.number == num %}
+                    <span style="padding:6px 12px;background:var(--gold);color:#1a1a1a;border-radius:6px;font-size:0.8rem;font-weight:bold;">
+                        {{ num }}
+                    </span>
+                {% elif num > users.number|add:'-3' and num < users.number|add:'3' %}
+                    <a href="?panel=users&page={{ num }}&search={{ user_search }}&role={{ selected_role }}&ustatus={{ selected_ustatus }}"
+                       style="padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);text-decoration:none;font-size:0.8rem;">
+                        {{ num }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if users.has_next %}
+                <a href="?panel=users&page={{ users.next_page_number }}&search={{ user_search }}&role={{ selected_role }}&ustatus={{ selected_ustatus }}"
+                   style="padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);text-decoration:none;font-size:0.8rem;">
+                    Sau →
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>

@@ -1,53 +1,27 @@
 {% load static %}
 
 <header>
-
-<style>
-.logo-link{
-    font-size:2rem;
-    font-weight:700;
-    color:white;
-    letter-spacing:1px;
-    text-decoration:none;
-    cursor:pointer;
-}
-
-.logo-link:hover{
-    color:white;
-    text-decoration:none;
-}
-</style>
-
     <div class="container header-container">
         <a href="{% url 'books:home' %}" class="logo-link">Bookshop</a>
 
-        <div class="nav-buttons">
-             {% if user.is_authenticated %}
-                <span style="font-size:0.9rem">Xin chào, {{ user.username }}</span>
+        <nav class="nav-right">
+            {% if user.is_authenticated %}
+                <span class="welcome-text">Xin chào, {{ user.username }}</span>
 
                 {% if user.role == 'admin' %}
-                    <a href="{% url 'books:dashboard' %}">Dashboard Admin</a>
+                    <a href="{% url 'books:dashboard' %}" class="nav-link admin">Dashboard Admin</a>
                 {% endif %}
-                <a href="{% url 'books:shop' %}">Cửa hàng</a>
-                <a href="{% url 'books:cart' %}">Giỏ hàng</a>
-                <a href="{% url 'books:profile' %}">Tài khoản</a>
-                <a href="{% url 'books:logout' %}">Đăng xuất</a>
+                <a href="{% url 'books:shop' %}" class="nav-link">Cửa hàng</a>
+                 <a href="{% url 'books:cart' %}" class="nav-link">Giỏ hàng</a>
+                <a href="{% url 'books:profile' %}" class="nav-link">Tài khoản</a>
+                <a href="{% url 'books:logout' %}" class="nav-link logout">Đăng xuất</a>
 
             {% else %}
-                <a href="{% url 'books:login' %}">Đăng nhập</a>
+            
+                <a href="{% url 'books:shop' %}" class="nav-link">Cửa hàng</a>
+                <a href="{% url 'books:cart' %}" class="nav-link">Giỏ hàng</a>
+                <a href="{% url 'books:login' %}" class="nav-link">Đăng nhập</a>
             {% endif %}
-        </div>
+        </nav>
     </div>
-
-<script>
-window.addEventListener('scroll', () => {
-    const header = document.querySelector('header');
-    if (window.scrollY > 10) {
-        header.style.boxShadow = '0 2px 16px rgba(0,0,0,0.15)';
-    } else {
-        header.style.boxShadow = 'none';
-    }
-});
-</script>
-
 </header>

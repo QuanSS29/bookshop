@@ -57,7 +57,7 @@
                 Một cuốn sách hay để lại dấu ấn trong tâm trí bạn mãi mãi —<br>
                 nó thay đổi cách bạn nhìn thế giới, cảm nhận cuộc sống và hiểu chính mình.
             </blockquote>
-            <cite>— Bookshop Philosophy —</cite>
+            <cite>— Bookshop Philosophy</cite>
         </div>
     </div>
 </section>
@@ -91,7 +91,12 @@
                         <p class="book-author">{{ book.author|default:"Tác giả" }}</p>
                         <div class="book-footer">
                             <span class="book-price" data-price="{{ book.price|floatformat:0 }}">{{ book.price|floatformat:0 }}</span>
-                            <button class="btn-cart" onclick="event.preventDefault()">+ Giỏ</button>
+                            <form method="POST" action="{% url 'books:cart_add' book.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="qty" value="1">
+                                <input type="hidden" name="next" value="/">
+                                <button type="submit" class="btn-cart">+ Giỏ</button>
+                            </form>
                         </div>
                     </div>
                 </a>
@@ -130,7 +135,12 @@
                         <p class="book-author">{{ book.author|default:"Tác giả" }}</p>
                         <div class="book-footer">
                             <span class="book-price" data-price="{{ book.price|floatformat:0 }}">{{ book.price|floatformat:0 }}</span>
-                            <button class="btn-cart" onclick="event.preventDefault()">+ Giỏ</button>
+                            <form method="POST" action="{% url 'books:cart_add' book.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="qty" value="1">
+                                <input type="hidden" name="next" value="/">
+                                <button type="submit" class="btn-cart">+ Giỏ</button>
+                            </form>
                         </div>
                     </div>
                 </a>

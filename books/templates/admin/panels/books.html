@@ -91,6 +91,44 @@
             </tbody>
         </table>
     </div>
+
+    <!-- PHÂN TRANG -->
+    {% if books.has_other_pages %}
+   <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 20px;border-top:1px solid var(--border);">
+    <span style="font-size:0.78rem;color:var(--muted)">
+        Trang {{ books.number }} / {{ books.paginator.num_pages }} 
+        ({{ books.paginator.count }} sách)
+    </span>
+        <div style="display:flex;gap:6px;">
+            {% if books.has_previous %}
+                <a href="?panel=books&page={{ books.previous_page_number }}&search={{ search }}&status={{ selected_status }}&sort={{ selected_sort }}"
+                   style="padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);text-decoration:none;font-size:0.8rem;">
+                    ← Trước
+                </a>
+            {% endif %}
+
+            {% for num in books.paginator.page_range %}
+                {% if books.number == num %}
+                    <span style="padding:6px 12px;background:var(--gold);color:#1a1a1a;border-radius:6px;font-size:0.8rem;font-weight:bold;">
+                        {{ num }}
+                    </span>
+                {% elif num > books.number|add:'-3' and num < books.number|add:'3' %}
+                    <a href="?panel=books&page={{ num }}&search={{ search }}&status={{ selected_status }}&sort={{ selected_sort }}"
+                       style="padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);text-decoration:none;font-size:0.8rem;">
+                        {{ num }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if books.has_next %}
+                <a href="?panel=books&page={{ books.next_page_number }}&search={{ search }}&status={{ selected_status }}&sort={{ selected_sort }}"
+                   style="padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);text-decoration:none;font-size:0.8rem;">
+                    Sau →
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <script>

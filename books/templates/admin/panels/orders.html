@@ -4,60 +4,225 @@
     <div class="section-sub">Duyệt, từ chối và theo dõi tất cả đơn hàng</div>
 
     <div class="toolbar">
-        <div class="toolbar-search">
-            <span>🔍</span>
-            <input type="text" placeholder="Tìm mã đơn, tên khách...">
-        </div>
-        <select class="toolbar-select">
-            <option>Tất cả trạng thái</option>
-            <option>Chờ duyệt</option>
-            <option>Đã duyệt</option>
-            <option>Từ chối</option>
-        </select>
-        <select class="toolbar-select">
-            <option>Mới nhất</option>
-            <option>Cũ nhất</option>
-            <option>Giá cao → thấp</option>
-        </select>
+        <form method="GET" action="{% url 'books:dashboard' %}" style="display:contents">
+            <input type="hidden" name="panel" value="orders">
+            <div class="toolbar-search">
+                <span>🔍</span>
+                <input type="text" name="order_search"
+                       placeholder="Tìm mã đơn, tên khách, SĐT..."
+                       value="{{ order_search }}">
+            </div>
+            <select class="toolbar-select" name="order_status" onchange="this.form.submit()">
+                <option value="">Tất cả trạng thái</option>
+                <option value="pending"  {% if selected_order_status == 'pending'  %}selected{% endif %}>Chờ duyệt</option>
+                <option value="approved" {% if selected_order_status == 'approved' %}selected{% endif %}>Đã duyệt</option>
+                <option value="shipping" {% if selected_order_status == 'shipping' %}selected{% endif %}>Đang giao</option>
+                <option value="done"     {% if selected_order_status == 'done'     %}selected{% endif %}>Hoàn thành</option>
+                <option value="rejected" {% if selected_order_status == 'rejected' %}selected{% endif %}>Đã hủy</option>
+            </select>
+            <select class="toolbar-select" name="order_sort" onchange="this.form.submit()">
+                <option value="newest"     {% if selected_order_sort == 'newest'     %}selected{% endif %}>Mới nhất</option>
+                <option value="oldest"     {% if selected_order_sort == 'oldest'     %}selected{% endif %}>Cũ nhất</option>
+                <option value="price_desc" {% if selected_order_sort == 'price_desc' %}selected{% endif %}>Giá cao → thấp</option>
+                <option value="price_asc"  {% if selected_order_sort == 'price_asc'  %}selected{% endif %}>Giá thấp → cao</option>
+            </select>
+            <button type="submit"
+                    class="btn-add"
+                    style="background:var(--surface);color:var(--text);border:1px solid var(--border)">
+                🔍 Lọc
+            </button>
+        </form>
     </div>
 
     <div class="card">
         <table>
             <thead>
-                <tr><th>Mã đơn</th><th>Khách hàng</th><th>Sách</th><th>SL</th><th>Tổng tiền</th><th>Ngày đặt</th><th>Trạng thái</th><th>Thao tác</th></tr>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Liên hệ</th>
+                    <th>Địa chỉ</th>
+                    <th>Sách đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Ngày đặt</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
             </thead>
             <tbody>
+                {% for order in orders %}
                 <tr>
-                    <td>#DH001</td><td>Nguyễn Văn A</td><td>Sách Hay Số 1</td><td>1</td>
-                    <td style="color:var(--gold)">189.000đ</td><td>01/03/2024</td>
-                    <td><span class="badge badge-pending">Chờ duyệt</span></td>
-                    <td><div class="action-group"><button class="btn-xs btn-approve">✓ Duyệt</button><button class="btn-xs btn-reject">✕ Từ chối</button></div></td>
+                    <!-- Mã đơn -->
+                    <td style="font-weight:600;color:var(--gold);white-space:nowrap;">
+                        #{{ order.id }}
+                    </td>
+
+                    <!-- Khách hàng -->
+                    <td style="font-size:0.83rem;color:var(--text);">
+                        {{ order.receiver_name }}
+                    </td>
+
+                    <!-- Liên hệ: SĐT + Email -->
+                    <td style="white-space:nowrap;">
+                        <div style="font-size:0.8rem;color:var(--text);">
+                            📞 {{ order.phone }}
+                        </div>
+                        <div style="font-size:0.72rem;color:var(--muted);margin-top:3px;">
+                            ✉️ {{ order.user.email|default:"—" }}
+                        </div>
+                    </td>
+
+                    <!-- Địa chỉ -->
+                    <td style="max-width:170px;font-size:0.78rem;color:var(--muted);line-height:1.55;">
+                        {{ order.address }}
+                    </td>
+
+                    <!-- Sách đặt -->
+                    <td style="max-width:220px;">
+                        <div style="display:flex;flex-direction:column;gap:4px;">
+                            {% for item in order.items.all %}
+                            <div style="font-size:0.78rem;color:var(--text);">
+                                {{ item.book.title|truncatechars:32 }}
+                                <span style="color:var(--muted);">×{{ item.quantity }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </td>
+
+                    <!-- Tổng tiền -->
+                    <td class="order-price-cell"
+                        data-price="{{ order.total_price|floatformat:0 }}"
+                        style="color:var(--gold);font-weight:700;white-space:nowrap;font-size:0.88rem;">
+                        —
+                    </td>
+
+                    <!-- Ngày đặt -->
+                    <td style="color:var(--muted);white-space:nowrap;font-size:0.79rem;">
+                        {{ order.created_at|date:"d/m/Y" }}<br>
+                        <span style="font-size:0.7rem;">{{ order.created_at|date:"H:i" }}</span>
+                    </td>
+
+                    <!-- Trạng thái -->
+                    <td>
+                        {% if order.status == 'pending' %}
+                            <span class="badge badge-pending">⏳ Chờ duyệt</span>
+                        {% elif order.status == 'approved' %}
+                            <span class="badge badge-approved">✅ Đã duyệt</span>
+                        {% elif order.status == 'shipping' %}
+                            <span class="badge" style="background:rgba(139,92,246,0.15);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);">🚚 Đang giao</span>
+                        {% elif order.status == 'done' %}
+                            <span class="badge" style="background:rgba(34,197,94,0.08);color:#4ade80;border:1px solid rgba(34,197,94,0.2);">🎉 Hoàn thành</span>
+                        {% elif order.status == 'rejected' %}
+                            <span class="badge badge-rejected">✗ Đã hủy</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Thao tác -->
+                    <td style="white-space:nowrap;">
+                        {% if order.status == 'pending' %}
+                            <div class="action-group">
+                                <form method="POST" action="{% url 'books:order_update_status' order.id %}" style="display:inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="new_status" value="approved">
+                                    <input type="hidden" name="next_url"
+                                           value="?panel=orders&page={{ orders.number }}&order_search={{ order_search }}&order_status={{ selected_order_status }}&order_sort={{ selected_order_sort }}">
+                                    <button type="submit" class="btn-xs btn-approve">✓ Duyệt</button>
+                                </form>
+                                <form method="POST" action="{% url 'books:order_update_status' order.id %}" style="display:inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="new_status" value="rejected">
+                                    <input type="hidden" name="next_url"
+                                           value="?panel=orders&page={{ orders.number }}&order_search={{ order_search }}&order_status={{ selected_order_status }}&order_sort={{ selected_order_sort }}">
+                                    <button type="submit" class="btn-xs btn-reject">✕ Từ chối</button>
+                                </form>
+                            </div>
+
+                        {% elif order.status == 'approved' %}
+                            <div class="action-group">
+                                <form method="POST" action="{% url 'books:order_update_status' order.id %}" style="display:inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="new_status" value="shipping">
+                                    <input type="hidden" name="next_url"
+                                           value="?panel=orders&page={{ orders.number }}&order_search={{ order_search }}&order_status={{ selected_order_status }}&order_sort={{ selected_order_sort }}">
+                                    <button type="submit" class="btn-xs btn-edit">🚚 Giao hàng</button>
+                                </form>
+                                <form method="POST" action="{% url 'books:order_update_status' order.id %}" style="display:inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="new_status" value="rejected">
+                                    <input type="hidden" name="next_url"
+                                           value="?panel=orders&page={{ orders.number }}&order_search={{ order_search }}&order_status={{ selected_order_status }}&order_sort={{ selected_order_sort }}">
+                                    <button type="submit" class="btn-xs btn-reject">✕ Hủy</button>
+                                </form>
+                            </div>
+
+                        {% elif order.status == 'shipping' %}
+                            <div class="action-group">
+                                <form method="POST" action="{% url 'books:order_update_status' order.id %}" style="display:inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="new_status" value="done">
+                                    <input type="hidden" name="next_url"
+                                           value="?panel=orders&page={{ orders.number }}&order_search={{ order_search }}&order_status={{ selected_order_status }}&order_sort={{ selected_order_sort }}">
+                                    <button type="submit" class="btn-xs btn-approve">✓ Hoàn thành</button>
+                                </form>
+                            </div>
+
+                        {% else %}
+                            <span style="color:var(--muted);font-size:0.75rem;">Đã xử lý</span>
+                        {% endif %}
+                    </td>
                 </tr>
+                {% empty %}
                 <tr>
-                    <td>#DH002</td><td>Trần Thị B</td><td>Sách Hay Số 3</td><td>2</td>
-                    <td style="color:var(--gold)">458.000đ</td><td>02/03/2024</td>
-                    <td><span class="badge badge-approved">Đã duyệt</span></td>
-                    <td><div class="action-group"><button class="btn-xs btn-reject">✕ Hủy</button></div></td>
+                    <td colspan="9"
+                        style="text-align:center;color:var(--muted);padding:32px;">
+                        Không tìm thấy đơn hàng nào.
+                    </td>
                 </tr>
-                <tr>
-                    <td>#DH003</td><td>Lê Văn C</td><td>Sách Hay Số 5</td><td>1</td>
-                    <td style="color:var(--gold)">229.000đ</td><td>03/03/2024</td>
-                    <td><span class="badge badge-pending">Chờ duyệt</span></td>
-                    <td><div class="action-group"><button class="btn-xs btn-approve">✓ Duyệt</button><button class="btn-xs btn-reject">✕ Từ chối</button></div></td>
-                </tr>
-                <tr>
-                    <td>#DH004</td><td>Phạm Thị D</td><td>Sách Hay Số 2</td><td>3</td>
-                    <td style="color:var(--gold)">567.000đ</td><td>04/03/2024</td>
-                    <td><span class="badge badge-rejected">Từ chối</span></td>
-                    <td><span style="color:var(--muted);font-size:0.75rem">Đã xử lý</span></td>
-                </tr>
-                <tr>
-                    <td>#DH005</td><td>Hoàng Văn E</td><td>Sách Hay Số 7</td><td>1</td>
-                    <td style="color:var(--gold)">189.000đ</td><td>05/03/2024</td>
-                    <td><span class="badge badge-pending">Chờ duyệt</span></td>
-                    <td><div class="action-group"><button class="btn-xs btn-approve">✓ Duyệt</button><button class="btn-xs btn-reject">✕ Từ chối</button></div></td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
+
+    <!-- PHÂN TRANG -->
+    {% if orders.has_other_pages %}
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 20px;border-top:1px solid var(--border);">
+        <span style="font-size:0.78rem;color:var(--muted)">
+            Trang {{ orders.number }} / {{ orders.paginator.num_pages }}
+            ({{ orders.paginator.count }} đơn hàng)
+        </span>
+        <div style="display:flex;gap:6px;">
+            {% if orders.has_previous %}
+                <a href="?panel=orders&page={{ orders.previous_page_number }}&order_search={{ order_search }}&order_status={{ selected_order_status }}&order_sort={{ selected_order_sort }}"
+                   style="padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);text-decoration:none;font-size:0.8rem;">
+                    ← Trước
+                </a>
+            {% endif %}
+            {% for num in orders.paginator.page_range %}
+                {% if orders.number == num %}
+                    <span style="padding:6px 12px;background:var(--gold);color:#1a1a1a;border-radius:6px;font-size:0.8rem;font-weight:bold;">
+                        {{ num }}
+                    </span>
+                {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                    <a href="?panel=orders&page={{ num }}&order_search={{ order_search }}&order_status={{ selected_order_status }}&order_sort={{ selected_order_sort }}"
+                       style="padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);text-decoration:none;font-size:0.8rem;">
+                        {{ num }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+            {% if orders.has_next %}
+                <a href="?panel=orders&page={{ orders.next_page_number }}&order_search={{ order_search }}&order_status={{ selected_order_status }}&order_sort={{ selected_order_sort }}"
+                   style="padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);text-decoration:none;font-size:0.8rem;">
+                    Sau →
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>
+
+<script>
+document.querySelectorAll('.order-price-cell[data-price]').forEach(el => {
+    const n = parseInt(el.dataset.price);
+    if (!isNaN(n)) el.textContent = n.toLocaleString('vi-VN') + ' đ';
+});
+</script>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - Bookshop</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+
+<div class="auth-page" style="max-width:520px;">
+    <div class="auth-container">
+  
+        <h1 class="auth-title">Tạo tài khoản</h1>
+        <p class="auth-subtitle">Đăng ký miễn phí để bắt đầu hành trình khám phá sách</p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Họ</label>
+                    <input type="text"
+                           name="last_name"
+                           placeholder="Nguyễn"
+                           value="{{ request.POST.last_name }}">
+                </div>
+                <div class="form-group">
+                    <label>Tên</label>
+                    <input type="text"
+                           name="first_name"
+                           placeholder="Văn A"
+                           value="{{ request.POST.first_name }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Tên đăng nhập <span class="req">*</span></label>
+                <input type="text"
+                       name="username"
+                       required autofocus
+                       placeholder="Tên đăng nhập (không dấu)"
+                       value="{{ request.POST.username }}">
+            </div>
+
+            <div class="form-group">
+                <label>Email <span class="req">*</span></label>
+                <input type="email"
+                       name="email"
+                       required
+                       placeholder="example@email.com"
+                       value="{{ request.POST.email }}">
+            </div>
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Mật khẩu <span class="req">*</span></label>
+                    <input type="password"
+                           name="password"
+                           required
+                           placeholder="Ít nhất 8 ký tự">
+                </div>
+                <div class="form-group">
+                    <label>Xác nhận mật khẩu <span class="req">*</span></label>
+                    <input type="password"
+                           name="password2"
+                           required
+                           placeholder="Nhập lại mật khẩu">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-auth">Đăng ký</button>
+        </form>
+
+        <div class="auth-links">
+            Đã có tài khoản?
+            <a href="{% url 'books:login' %}">Đăng nhập</a>
+            <span class="sep">·</span>
+            <a href="{% url 'books:home' %}">Về trang chủ</a>
+        </div>
+    </div>
+</div>
+
+{% include 'partials/messages.html' %}
+
+</body>
+</html>

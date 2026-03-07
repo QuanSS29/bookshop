@@ -5,60 +5,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - Bookshop</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
 <body>
 
-    <div class="login-page">
-        <div class="login-container">
-            <h1>Bookshop</h1>
-            <p class="subtitle">Truy cập để mua sắm và khám phá hàng ngàn cuốn sách hay</p>
-            <form method="post" class="login-form">
-                {% csrf_token %}
+<div class="auth-page">
+    <div class="auth-container">
+        <span class="auth-brand">Bookshop</span>
+        <h1 class="auth-title">Chào mừng trở lại</h1>
+        <p class="auth-subtitle">Đăng nhập để mua sắm và khám phá hàng ngàn cuốn sách hay</p>
 
-                <div class="form-group">
-                    <label for="username">Email</label>  {# input name vẫn là "username" để view nhận #}
-                    <input
-                        type="email"
-                        id="username"
-                        name="username"
-                        required
-                        autofocus
-                        placeholder="Nhập địa chỉ email"
-                        value="{{ request.POST.username }}"  {# giữ lại email nếu login lỗi #}
-                    >
-                </div>
+        <form method="POST" class="login-form">
+            {% csrf_token %}
 
-                <div class="form-group">
-                    <label for="password">Mật khẩu</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        required
-                        placeholder="Nhập mật khẩu"
-                    >
-                </div>
+            <div class="form-group">
+                <label for="username">Email <span class="req">*</span></label>
+                <input type="email"
+                       id="username"
+                       name="username"
+                       required autofocus
+                       placeholder="Nhập địa chỉ email"
+                       value="{{ request.POST.username }}">
+            </div>
 
-                <button type="submit">Đăng nhập</button>
+            <div class="form-group">
+                <label for="password">Mật khẩu <span class="req">*</span></label>
+                <input type="password"
+                       id="password"
+                       name="password"
+                       required
+                       placeholder="Nhập mật khẩu">
+            </div>
 
-                <div class="extra-links">
-                    <a href="{% url 'books:home' %}">Về trang chủ</a>
-                    <span>|</span>
-                    <a href="#">Quên mật khẩu?</a>
-                </div>
+            <button type="submit" class="btn-auth">Đăng nhập</button>
+        </form>
 
-                <div class="register-link">
-                    Chưa có tài khoản? <a href="#">Đăng ký ngay</a>
-                </div>
-            </form>
+        <div class="auth-links">
+            Chưa có tài khoản?
+            <a href="{% url 'books:register' %}">Đăng ký ngay</a>
+            <span class="sep">·</span>
+            <a href="{% url 'books:home' %}">Về trang chủ</a>
         </div>
     </div>
+</div>
 
-    {% include 'partials/messages.html' %}
+{% include 'partials/messages.html' %}
 
 </body>
 </html>

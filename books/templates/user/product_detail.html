@@ -1,321 +1,612 @@
-<!DOCTYPE html>
-<html lang="vi">
+{% extends 'base.html' %}
 {% load static %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bookshop - Chi tiết sách</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --cream: #faf6f1; --brown: #3d2b1f; --accent: #c0392b;
-            --gold: #d4a853; --light: #f0e9df; --text-muted: #7a6555;
-        }
-        body { background: var(--cream); font-family: 'Georgia', serif; color: var(--brown); }
-        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
 
-        /* BREADCRUMB */
-        .breadcrumb {
-            padding: 16px 0;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-        .breadcrumb a { color: var(--accent); text-decoration: none; }
-        .breadcrumb a:hover { text-decoration: underline; }
-        .breadcrumb span { margin: 0 8px; }
+{% block title %}{{ book.title }} - Bookshop{% endblock %}
 
-        /* DETAIL LAYOUT */
-        .detail-section { padding: 24px 0 60px; }
-        .detail-grid {
-            display: grid;
-            grid-template-columns: 340px 1fr;
-            gap: 48px;
-            align-items: start;
-        }
+{% block extra_css %}
+<style>
+/* ═══════════════════════════════════
+   BREADCRUMB
+═══════════════════════════════════ */
+.breadcrumb {
+    padding: 14px 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+.breadcrumb a { color: var(--teal); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { margin: 0 6px; color: #d1d5db; }
 
-        /* LEFT - IMAGE */
-        .book-image-wrap {
-            position: sticky;
-            top: 24px;
-        }
-        .book-image-wrap img {
-            width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(61,43,31,0.2);
-        }
-        .book-badges {
-            display: flex;
-            gap: 8px;
-            margin-top: 14px;
-            flex-wrap: wrap;
-        }
-        .badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.78rem;
-            font-family: sans-serif;
-        }
-        .badge-genre { background: var(--light); color: var(--brown); border: 1px solid #ddd; }
-        .badge-status { background: #27ae60; color: white; }
+/* ═══════════════════════════════════
+   DETAIL LAYOUT
+═══════════════════════════════════ */
+.detail-section { padding: 10px 0 64px; }
+.detail-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 52px;
+    align-items: start;
+}
 
-        /* RIGHT - INFO */
-        .book-meta h1 {
-            font-size: 1.9rem;
-            line-height: 1.35;
-            margin-bottom: 8px;
-        }
-        .book-meta .author {
-            font-size: 1rem;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-bottom: 20px;
-        }
+/* ─── ẢNH BÌA ─── */
+.book-image-wrap { position: sticky; top: 88px; }
+.book-cover-card {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 48px rgba(30,58,95,0.18);
+    background: var(--warm);
+    aspect-ratio: 3/4;
+    display: flex; align-items: center; justify-content: center;
+}
+.book-cover-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.book-cover-no-img {
+    font-size: 5rem;
+    opacity: 0.4;
+}
+.book-badges { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.badge-genre {
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 0.74rem;
+    background: #f0fdf4; color: var(--teal-dark);
+    border: 1px solid #bbf7d0; font-weight: 500;
+}
+.badge-instock {
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 0.74rem;
+    background: #fffbeb; color: #92400e;
+    border: 1px solid #fde68a; font-weight: 500;
+}
+.badge-outstock {
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 0.74rem;
+    background: #fee2e2; color: #7f1d1d;
+    border: 1px solid #fca5a5; font-weight: 500;
+}
 
-        .rating-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .stars { color: var(--gold); font-size: 1.1rem; letter-spacing: 2px; }
-        .rating-count { font-size: 0.85rem; color: var(--text-muted); }
+/* ─── META ─── */
+.book-meta h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem; line-height: 1.25;
+    color: var(--navy); margin-bottom: 8px;
+    font-weight: 700;
+}
+.book-author-line {
+    font-size: 0.9rem; color: var(--muted);
+    margin-bottom: 18px; font-style: italic;
+}
+.book-author-line strong { color: var(--navy); font-style: normal; }
 
-        .price-box {
-            background: white;
-            border: 2px solid var(--light);
-            border-radius: 10px;
-            padding: 20px 24px;
-            margin-bottom: 24px;
-        }
-        .price-current {
-            font-size: 2rem;
-            color: var(--accent);
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-        .price-original {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            text-decoration: line-through;
-        }
-        .price-save {
-            display: inline-block;
-            background: #fff3cd;
-            color: #856404;
-            font-size: 0.8rem;
-            padding: 3px 10px;
-            border-radius: 4px;
-            margin-top: 6px;
-            font-family: sans-serif;
-        }
+/* Rating */
+.rating-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+.stars-display { color: var(--amber); font-size: 1.05rem; letter-spacing: 2px; }
+.rating-count  { font-size: 0.8rem; color: var(--muted); }
 
-        .qty-row {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-        .qty-row label { font-size: 0.9rem; color: var(--text-muted); }
-        .qty-control {
-            display: flex;
-            align-items: center;
-            border: 1.5px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .qty-control button {
-            width: 36px; height: 36px;
-            background: var(--light);
-            border: none;
-            font-size: 1.1rem;
-            cursor: pointer;
-            color: var(--brown);
-            transition: background 0.2s;
-        }
-        .qty-control button:hover { background: #ddd; }
-        .qty-control input {
-            width: 48px; height: 36px;
-            text-align: center;
-            border: none;
-            outline: none;
-            font-family: inherit;
-            font-size: 0.95rem;
-        }
+/* Price */
+.price-box {
+    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+    border: 1px solid #bbf7d0;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 22px;
+    display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;
+}
+.price-current  { font-size: 2.1rem; color: var(--coral); font-weight: 700; line-height: 1; }
+.price-original { font-size: 0.92rem; color: var(--muted); text-decoration: line-through; align-self: flex-end; padding-bottom: 3px; }
+.price-save {
+    margin-left: auto; align-self: flex-end;
+    background: #fef9c3; color: #854d0e;
+    font-size: 0.74rem; padding: 4px 12px;
+    border-radius: 20px; font-weight: 600;
+    border: 1px solid #fde68a;
+}
 
-        .action-btns {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 28px;
-        }
-        .btn-primary {
-            flex: 1;
-            padding: 14px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-        .btn-primary:hover { background: #a93226; }
-        .btn-order {
-            flex: 1;
-            padding: 14px;
-            background: var(--brown);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: bold;
-            transition: background 0.2s;
-            text-decoration: none;
-            text-align: center;
-        }
-        .btn-order:hover { background: #5a3e2f; }
+/* Qty */
+.qty-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.qty-row label { font-size: 0.86rem; color: var(--muted); font-weight: 500; }
+.qty-control {
+    display: flex; align-items: center;
+    border: 1.5px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+}
+.qty-control button {
+    width: 38px; height: 38px;
+    background: #f9fafb; border: none;
+    font-size: 1.1rem; cursor: pointer;
+    color: var(--navy); transition: background 0.2s;
+}
+.qty-control button:hover { background: #e5e7eb; }
+.qty-control input {
+    width: 52px; height: 38px;
+    text-align: center; border: none; outline: none;
+    font-family: inherit; font-size: 0.92rem;
+    font-weight: 600; color: var(--navy);
+}
 
-        .info-list { list-style: none; margin-bottom: 24px; }
-        .info-list li {
-            display: flex;
-            gap: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--light);
-            font-size: 0.9rem;
-        }
-        .info-list li span:first-child {
-            width: 110px;
-            color: var(--text-muted);
-            flex-shrink: 0;
-        }
+/* Action Buttons */
+.action-btns { display: flex; gap: 12px; margin-bottom: 24px; }
+.btn-add-cart {
+    flex: 1; padding: 13px 20px;
+    background: var(--teal); color: white;
+    border: none; border-radius: 10px;
+    font-size: 0.92rem; cursor: pointer;
+    font-family: inherit; font-weight: 600;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-add-cart:hover { background: var(--teal-dark); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13,148,136,0.3); }
+.btn-buy-now {
+    flex: 1; padding: 13px 20px;
+    background: var(--coral); color: white;
+    border: none; border-radius: 10px;
+    font-size: 0.92rem; cursor: pointer;
+    font-family: inherit; font-weight: 600;
+    transition: all 0.2s; text-decoration: none;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-buy-now:hover { background: var(--coral-dark); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249,115,22,0.3); }
 
-        /* DESCRIPTION */
-        .desc-section {
-            margin-top: 48px;
-            border-top: 2px solid var(--light);
-            padding-top: 32px;
-        }
-        .desc-section h2 { font-size: 1.3rem; margin-bottom: 16px; }
-        .desc-section p {
-            line-height: 1.85;
-            color: #5a4535;
-            font-size: 0.95rem;
-        }
+/* Info table */
+.info-list { list-style: none; margin-bottom: 0; }
+.info-list li {
+    display: flex; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.86rem;
+}
+.info-list li:last-child { border-bottom: none; }
+.info-list li .info-key { width: 110px; color: var(--muted); flex-shrink: 0; font-weight: 500; }
+.info-list li .info-val { color: var(--ink); font-weight: 500; }
 
-        /* REVIEWS */
-        .reviews-section { margin-top: 48px; border-top: 2px solid var(--light); padding-top: 32px; }
-        .reviews-section h2 { font-size: 1.3rem; margin-bottom: 20px; }
-        .review-card {
-            background: white;
-            border-radius: 8px;
-            padding: 16px 20px;
-            margin-bottom: 14px;
-            border: 1px solid var(--light);
-        }
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        .reviewer-name { font-weight: bold; font-size: 0.9rem; }
-        .review-date { font-size: 0.8rem; color: var(--text-muted); }
-        .review-stars { color: var(--gold); font-size: 0.9rem; margin-bottom: 6px; }
-        .review-text { font-size: 0.88rem; color: #5a4535; line-height: 1.6; }
-    </style>
-</head>
-<body>
-    {% include 'includes/header.html' %}
+/* ═══════════════════════════════════
+   BOTTOM TABS
+═══════════════════════════════════ */
+.detail-tabs { margin-top: 52px; border-top: 2px solid var(--border); }
+.tab-nav { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 32px; }
+.tab-btn {
+    padding: 14px 28px;
+    border: none; background: transparent;
+    font-family: inherit; font-size: 0.9rem;
+    font-weight: 600; color: var(--muted);
+    cursor: pointer; transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+}
+.tab-btn:hover { color: var(--navy); }
+.tab-btn.active { color: var(--teal-dark); border-bottom-color: var(--teal); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
 
-    <div class="container">
-        <div class="breadcrumb">
-            <a href="{% url 'books:home' %}">Trang chủ</a>
-            <span>›</span>
-            <a href="{% url 'books:shop' %}">Cửa hàng</a>
-            <span>›</span>
-            Sách Hay Số 1
-        </div>
+/* Description */
+.desc-content { line-height: 1.95; color: #4b5563; font-size: 0.9rem; }
+
+/* ═══════════════════════════════════
+   REVIEWS
+═══════════════════════════════════ */
+.reviews-summary {
+    display: flex; gap: 32px; align-items: center;
+    background: #f8fafc; border: 1px solid var(--border);
+    border-radius: 14px; padding: 24px 28px;
+    margin-bottom: 28px;
+}
+.avg-score-block { text-align: center; min-width: 90px; }
+.avg-score {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.5rem; font-weight: 700;
+    color: var(--navy); line-height: 1;
+}
+.avg-stars { color: var(--amber); font-size: 1.1rem; letter-spacing: 2px; margin: 4px 0; }
+.avg-count { font-size: 0.76rem; color: var(--muted); }
+.rating-bars { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.rating-bar-row { display: flex; align-items: center; gap: 10px; font-size: 0.78rem; }
+.rating-bar-label { width: 28px; color: var(--muted); text-align: right; flex-shrink: 0; }
+.rating-bar-track { flex: 1; height: 7px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+.rating-bar-fill  { height: 100%; background: var(--amber); border-radius: 4px; transition: width 0.6s ease; }
+.rating-bar-cnt   { width: 24px; color: var(--muted); font-size: 0.74rem; }
+
+/* Review gate */
+.review-gate {
+    display: flex; align-items: center; gap: 14px;
+    background: #f8fafc; border: 1.5px dashed #d1d5db;
+    border-radius: 12px; padding: 18px 22px;
+    color: var(--muted); font-size: 0.88rem;
+    margin-bottom: 24px;
+}
+.review-gate .gate-icon { font-size: 1.6rem; flex-shrink: 0; }
+.review-gate a { color: var(--teal); font-weight: 600; text-decoration: none; }
+.review-gate a:hover { text-decoration: underline; }
+.review-done-msg {
+    display: flex; align-items: center; gap: 10px;
+    background: #f0fdf4; border: 1px solid #bbf7d0;
+    border-radius: 12px; padding: 14px 20px;
+    color: #065f46; font-size: 0.88rem; font-weight: 500;
+    margin-bottom: 24px;
+}
+
+/* Review form */
+.review-form-card {
+    background: white; border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 24px;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.review-form-card h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; color: var(--navy);
+    margin-bottom: 16px;
+}
+.star-picker { display: flex; gap: 8px; margin-bottom: 16px; }
+.star-opt {
+    font-size: 2rem; cursor: pointer;
+    color: #d1d5db; transition: color 0.15s, transform 0.15s;
+    user-select: none;
+}
+.star-opt.lit   { color: var(--amber); }
+.star-opt:hover { transform: scale(1.2); }
+.star-label {
+    font-size: 0.8rem; color: var(--muted);
+    align-self: center; margin-left: 4px;
+}
+.review-textarea {
+    width: 100%; padding: 12px 14px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 0.88rem; color: var(--ink);
+    resize: vertical; outline: none; background: #f9fafb;
+    transition: border-color 0.2s, background 0.2s;
+    min-height: 100px;
+}
+.review-textarea:focus { border-color: var(--teal); background: white; }
+.btn-submit-review {
+    margin-top: 12px;
+    padding: 10px 28px;
+    background: var(--teal); color: white;
+    border: none; border-radius: 8px;
+    font-family: inherit; font-size: 0.88rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+}
+.btn-submit-review:hover { background: var(--teal-dark); transform: translateY(-1px); }
+
+/* Review cards */
+.review-list { display: flex; flex-direction: column; gap: 14px; }
+.review-card {
+    background: white; border-radius: 12px;
+    padding: 18px 22px;
+    border: 1px solid var(--border);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.review-card:hover { border-color: var(--teal-light); box-shadow: 0 4px 16px rgba(13,148,136,0.08); }
+.review-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 6px;
+}
+.reviewer-info { display: flex; align-items: center; gap: 10px; }
+.reviewer-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--teal); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 700; flex-shrink: 0;
+    font-family: 'Cormorant Garamond', serif;
+}
+.reviewer-name  { font-weight: 600; font-size: 0.88rem; color: var(--navy); }
+.reviewer-badge {
+    font-size: 0.65rem; background: #f0fdf4;
+    color: var(--teal-dark); padding: 2px 8px;
+    border-radius: 10px; border: 1px solid #bbf7d0;
+    font-weight: 500;
+}
+.review-date    { font-size: 0.76rem; color: var(--muted); }
+.review-stars   { color: var(--amber); font-size: 0.92rem; margin-bottom: 8px; letter-spacing: 1px; }
+.review-text    { font-size: 0.86rem; color: #4b5563; line-height: 1.7; }
+.no-review      { text-align: center; padding: 40px; color: var(--muted); font-style: italic; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="breadcrumb">
+        <a href="{% url 'books:home' %}">Trang chủ</a>
+        <span>›</span>
+        <a href="{% url 'books:shop' %}">Cửa hàng</a>
+        <span>›</span>
+        {{ book.title }}
     </div>
+</div>
 
-    <section class="detail-section">
-        <div class="container">
-            <div class="detail-grid">
-                <!-- LEFT: ẢNH -->
-                <div class="book-image-wrap">
-                    <img src="{% static 'images/book1.jpg' %}" alt="Sách Hay Số 1">
-                    <div class="book-badges">
-                        <span class="badge badge-genre">Văn học</span>
-                        <span class="badge badge-status">Còn hàng</span>
-                    </div>
+<section class="detail-section">
+    <div class="container">
+
+        <!-- TOP: ẢNH + META -->
+        <div class="detail-grid">
+
+            <!-- ẢNH BÌA -->
+            <div class="book-image-wrap">
+                <div class="book-cover-card">
+                    {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+                    {% else %}
+                        <div class="book-cover-no-img">📖</div>
+                    {% endif %}
                 </div>
-
-                <!-- RIGHT: THÔNG TIN -->
-                <div class="book-meta">
-                    <h1>Sách Hay Số 1</h1>
-                    <p class="author">Tác giả: Nguyễn Văn Mẫu</p>
-
-                    <div class="rating-row">
-                        <span class="stars">★★★★☆</span>
-                        <span class="rating-count">(42 đánh giá)</span>
-                    </div>
-
-                    <div class="price-box">
-                        <div class="price-current">189.000đ</div>
-                        <div class="price-original">229.000đ</div>
-                        <span class="price-save">Tiết kiệm 40.000đ</span>
-                    </div>
-
-                    <div class="qty-row">
-                        <label>Số lượng:</label>
-                        <div class="qty-control">
-                            <button onclick="this.nextElementSibling.value=Math.max(1,+this.nextElementSibling.value-1)">−</button>
-                            <input type="number" value="1" min="1">
-                            <button onclick="this.previousElementSibling.value=+this.previousElementSibling.value+1">+</button>
-                        </div>
-                    </div>
-
-                    <div class="action-btns">
-                        <button class="btn-primary">🛒 Thêm vào giỏ</button>
-                        <a href="{% url 'books:order' %}" class="btn-order">⚡ Đặt hàng ngay</a>
-                    </div>
-
-                    <ul class="info-list">
-                        <li><span>NXB</span><span>NXB Trẻ</span></li>
-                        <li><span>Năm XB</span><span>2023</span></li>
-                        <li><span>Số trang</span><span>320 trang</span></li>
-                        <li><span>Ngôn ngữ</span><span>Tiếng Việt</span></li>
-                        <li><span>Trạng thái</span><span style="color:#27ae60">● Còn hàng</span></li>
-                    </ul>
+                <div class="book-badges">
+                    <span class="badge-genre">{{ book.category.name|default:"Sách" }}</span>
+                    {% if book.status == 'active' %}
+                        <span class="badge-instock">✓ Còn hàng</span>
+                    {% else %}
+                        <span class="badge-outstock">✗ Hết hàng</span>
+                    {% endif %}
                 </div>
             </div>
 
-            <!-- MÔ TẢ -->
-            <div class="desc-section">
-                <h2>Mô tả sách</h2>
-                <p>Đây là mô tả mẫu cho cuốn sách. Nội dung sẽ được lấy từ database khi kết nối. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-            </div>
+            <!-- THÔNG TIN -->
+            <div class="book-meta">
+                <h1>{{ book.title }}</h1>
+                <p class="book-author-line">Tác giả: <strong>{{ book.author|default:"Đang cập nhật" }}</strong></p>
 
-            <!-- ĐÁNH GIÁ -->
-            <div class="reviews-section">
-                <h2>Đánh giá từ độc giả</h2>
-                {% for i in "123" %}
-                <div class="review-card">
-                    <div class="review-header">
-                        <span class="reviewer-name">Độc giả {{ forloop.counter }}</span>
-                        <span class="review-date">01/0{{ forloop.counter }}/2024</span>
-                    </div>
-                    <div class="review-stars">★★★★☆</div>
-                    <p class="review-text">Sách rất hay, nội dung phong phú và bổ ích. Tôi đã đọc xong trong 2 ngày.</p>
+                <!-- Rating tổng -->
+                <div class="rating-row">
+                    <span class="stars-display" id="avgStarsDisplay">★★★★☆</span>
+                    <span class="rating-count" id="avgRatingText">({{ reviews.count }} đánh giá)</span>
                 </div>
-                {% endfor %}
+
+                <!-- Giá -->
+                <div class="price-box">
+                    <div class="price-current" id="priceDisplay">đang tải...</div>
+                    <div class="price-original" id="priceOriginal"></div>
+                    <span class="price-save" id="priceSave"></span>
+                </div>
+
+                <!-- Số lượng -->
+                <div class="qty-row">
+                    <label>Số lượng:</label>
+                    <div class="qty-control">
+                        <button type="button" onclick="changeQty(-1)">−</button>
+                        <input type="number" id="qtyDisplay" value="1" min="1" max="99" oninput="syncQty(this.value)">
+                        <button type="button" onclick="changeQty(1)">+</button>
+                    </div>
+                </div>
+
+                <!-- Nút hành động -->
+                <div class="action-btns">
+                    <form method="POST" action="{% url 'books:cart_add' book.id %}" style="flex:1">
+                        {% csrf_token %}
+                        <input type="hidden" name="qty" id="detailQty" value="1">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" class="btn-add-cart" style="width:100%">
+                            🛒 Thêm vào giỏ
+                        </button>
+                    </form>
+                    <a href="{% url 'books:order' %}" class="btn-buy-now">
+                        ⚡ Mua ngay
+                    </a>
+                </div>
+
+                <!-- Chi tiết -->
+                <ul class="info-list">
+                    <li>
+                        <span class="info-key">Danh mục</span>
+                        <span class="info-val">{{ book.category.name|default:"—" }}</span>
+                    </li>
+                    <li>
+                        <span class="info-key">Tác giả</span>
+                        <span class="info-val">{{ book.author|default:"—" }}</span>
+                    </li>
+                    <li>
+                        <span class="info-key">Trạng thái</span>
+                        <span class="info-val">
+                            {% if book.status == 'active' %}
+                                <span style="color:#059669;font-weight:600">● Còn hàng</span>
+                            {% else %}
+                                <span style="color:#dc2626;font-weight:600">● Hết hàng</span>
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li>
+                        <span class="info-key">Ngày thêm</span>
+                        <span class="info-val">{{ book.created_at|date:"d/m/Y" }}</span>
+                    </li>
+                </ul>
             </div>
         </div>
-    </section>
 
-    {% include 'includes/footer.html' %}
-    {% include 'partials/messages.html' %}
-</body>
-</html>
+        <!-- TABS: MÔ TẢ & ĐÁNH GIÁ -->
+        <div class="detail-tabs">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('desc', this)">📖 Mô tả sách</button>
+                <button class="tab-btn" onclick="switchTab('reviews', this)">
+                    💬 Đánh giá ({{ reviews.count }})
+                </button>
+            </div>
+
+            <!-- TAB: MÔ TẢ -->
+            <div class="tab-panel active" id="tab-desc">
+                <p class="desc-content">{{ book.description|default:"Chưa có mô tả cho cuốn sách này."|linebreaks }}</p>
+            </div>
+
+            <!-- TAB: ĐÁNH GIÁ -->
+            <div class="tab-panel" id="tab-reviews">
+
+                <!-- Tổng quan rating -->
+                {% if reviews.count > 0 %}
+                <div class="reviews-summary">
+                    <div class="avg-score-block">
+                        <div class="avg-score" id="avgScore">—</div>
+                        <div class="avg-stars" id="avgStarsBlock">★★★★★</div>
+                        <div class="avg-count">{{ reviews.count }} đánh giá</div>
+                    </div>
+                    <div class="rating-bars" id="ratingBars">
+                        {% for star in "54321" %}
+                        <div class="rating-bar-row">
+                            <span class="rating-bar-label">{{ star }}★</span>
+                            <div class="rating-bar-track">
+                                <div class="rating-bar-fill" id="bar{{ star }}" style="width:0%"></div>
+                            </div>
+                            <span class="rating-bar-cnt" id="cnt{{ star }}">0</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- FORM REVIEW / TRẠNG THÁI -->
+                {% if not request.user.is_authenticated %}
+                <div class="review-gate">
+                    <span class="gate-icon">🔒</span>
+                    <div>
+                        Vui lòng <a href="{% url 'books:login' %}">đăng nhập</a>
+                        để đánh giá sách này.
+                    </div>
+                </div>
+
+                {% elif has_reviewed %}
+                <div class="review-done-msg">
+                    ✅ Bạn đã đánh giá sách này rồi. Cảm ơn bạn!
+                </div>
+
+                {% elif can_review %}
+                <div class="review-form-card">
+                    <h4>✍️ Viết đánh giá của bạn</h4>
+                    <form method="POST" action="{% url 'books:review_add' book.id %}">
+                        {% csrf_token %}
+                        <div class="star-picker" id="starPicker">
+                            <span class="star-opt lit" data-val="1" onclick="pickStar(1)">★</span>
+                            <span class="star-opt lit" data-val="2" onclick="pickStar(2)">★</span>
+                            <span class="star-opt lit" data-val="3" onclick="pickStar(3)">★</span>
+                            <span class="star-opt lit" data-val="4" onclick="pickStar(4)">★</span>
+                            <span class="star-opt lit" data-val="5" onclick="pickStar(5)">★</span>
+                            <span class="star-label" id="starLabel">Tuyệt vời!</span>
+                        </div>
+                        <input type="hidden" name="rating" id="ratingInput" value="5">
+                        <textarea name="comment" class="review-textarea"
+                            placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này..."
+                            rows="4" required></textarea>
+                        <button type="submit" class="btn-submit-review">
+                            📤 Gửi đánh giá
+                        </button>
+                    </form>
+                </div>
+
+                {% else %}
+                <div class="review-gate">
+                    <span class="gate-icon">🛒</span>
+                    <div>
+                        Bạn cần <strong>mua và nhận hàng thành công</strong>
+                        để có thể đánh giá sách này.
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- DANH SÁCH REVIEW -->
+                <div class="review-list">
+                    {% for review in reviews %}
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <div class="reviewer-avatar">
+                                    {{ review.user.username|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="reviewer-name">
+                                        {{ review.user.get_full_name|default:review.user.username }}
+                                        <span class="reviewer-badge">Đã mua hàng</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="review-date">{{ review.created_at|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="review-stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="review-text">{{ review.comment }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="no-review">Chưa có đánh giá nào. Hãy là người đầu tiên! 📝</p>
+                    {% endfor %}
+                </div>
+
+            </div><!-- end tab-reviews -->
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ── Qty control ── */
+function changeQty(d) {
+    const inp = document.getElementById('qtyDisplay');
+    inp.value = Math.max(1, Math.min(99, parseInt(inp.value || 1) + d));
+    syncQty(inp.value);
+}
+function syncQty(v) {
+    document.getElementById('detailQty').value = Math.max(1, parseInt(v) || 1);
+}
+
+/* ── Price display ── */
+const realPrice  = {{ book.price|floatformat:0 }};
+const pct        = 10 + Math.floor(Math.random() * 6);
+const fakeOrigin = Math.round(realPrice * (1 + pct / 100) / 1000) * 1000;
+const saved      = fakeOrigin - realPrice;
+document.getElementById('priceDisplay').textContent  = realPrice.toLocaleString('vi-VN') + ' đ';
+document.getElementById('priceOriginal').textContent = fakeOrigin.toLocaleString('vi-VN') + ' đ';
+document.getElementById('priceSave').textContent     = `Tiết kiệm ${saved.toLocaleString('vi-VN')} đ (${pct}%)`;
+
+/* ── Tab switching ── */
+function switchTab(tab, el) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    el.classList.add('active');
+}
+
+/* ── Star picker ── */
+const starLabels = ['', 'Tệ', 'Không tốt', 'Bình thường', 'Tốt', 'Tuyệt vời!'];
+function pickStar(val) {
+    document.getElementById('ratingInput').value = val;
+    document.querySelectorAll('.star-opt').forEach((s, i) => {
+        s.classList.toggle('lit', i < val);
+    });
+    const lbl = document.getElementById('starLabel');
+    if (lbl) lbl.textContent = starLabels[val];
+}
+
+/* ── Review statistics ── */
+const reviewData = [
+    {% for review in reviews %}
+        { rating: {{ review.rating }} },
+    {% endfor %}
+];
+
+if (reviewData.length > 0) {
+    const avg = reviewData.reduce((s, r) => s + r.rating, 0) / reviewData.length;
+    const avgEl = document.getElementById('avgScore');
+    if (avgEl) avgEl.textContent = avg.toFixed(1);
+
+    // Update stars in header
+    const fullStars = Math.round(avg);
+    const starsDisp = document.getElementById('avgStarsDisplay');
+    if (starsDisp) {
+        starsDisp.textContent = '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
+    }
+    const starsBlock = document.getElementById('avgStarsBlock');
+    if (starsBlock) {
+        starsBlock.textContent = '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
+    }
+
+    // Rating bars
+    [5, 4, 3, 2, 1].forEach(star => {
+        const count = reviewData.filter(r => r.rating === star).length;
+        const pct   = Math.round(count / reviewData.length * 100);
+        const bar = document.getElementById('bar' + star);
+        const cnt = document.getElementById('cnt' + star);
+        if (bar) bar.style.width = pct + '%';
+        if (cnt) cnt.textContent = count;
+    });
+}
+</script>
+{% endblock %}

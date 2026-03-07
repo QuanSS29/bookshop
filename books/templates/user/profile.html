@@ -1,336 +1,647 @@
-<!DOCTYPE html>
-<html lang="vi">
+{% extends 'base.html' %}
 {% load static %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bookshop - Tài khoản của tôi</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --cream: #faf6f1; --brown: #3d2b1f; --accent: #c0392b;
-            --gold: #d4a853; --light: #f0e9df; --text-muted: #7a6555;
-        }
-        body { background: var(--cream); font-family: 'Georgia', serif; color: var(--brown); }
-        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
 
-        /* PAGE HEADER */
-        .page-header { background: var(--brown); padding: 36px 0; }
-        .profile-banner {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-        .avatar {
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            background: var(--gold);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2rem;
-            color: var(--brown);
-            font-weight: bold;
-            border: 3px solid rgba(255,255,255,0.3);
-            flex-shrink: 0;
-        }
-        .profile-banner-info h1 { color: white; font-size: 1.5rem; margin-bottom: 4px; }
-        .profile-banner-info p { color: #c9b8a8; font-size: 0.9rem; }
-        .profile-badge {
-            margin-left: auto;
-            padding: 6px 16px;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 20px;
-            color: var(--gold);
-            font-size: 0.82rem;
-            font-family: sans-serif;
-        }
+{% block title %}Tài khoản - Bookshop{% endblock %}
 
-        /* LAYOUT */
-        .profile-section { padding: 36px 0 60px; }
-        .profile-layout {
-            display: grid;
-            grid-template-columns: 240px 1fr;
-            gap: 28px;
-            align-items: start;
-        }
+{% block extra_css %}
+<style>
+/* ═══════════════════════════════════════════
+   PROFILE HERO
+═══════════════════════════════════════════ */
+.profile-hero {
+    background: linear-gradient(135deg, var(--navy) 0%, #1a3460 60%, var(--teal-dark) 100%);
+    padding: 40px 0 32px;
+    position: relative;
+    overflow: hidden;
+}
+.profile-hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: rgba(13,148,136,0.12);
+}
+.profile-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 20%;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(249,115,22,0.08);
+}
+.profile-banner {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    position: relative;
+    z-index: 1;
+}
+.avatar-circle {
+    width: 76px; height: 76px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; font-weight: 700;
+    font-family: 'Cormorant Garamond', serif;
+    flex-shrink: 0;
+    border: 3px solid rgba(255,255,255,0.2);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.profile-banner-info { flex: 1; }
+.profile-banner-info h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.7rem; color: white;
+    margin-bottom: 4px; font-weight: 700;
+}
+.profile-banner-info p {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.83rem;
+}
+.profile-role-badge {
+    padding: 6px 18px;
+    background: rgba(13,148,136,0.2);
+    border: 1px solid rgba(153,246,228,0.35);
+    border-radius: 20px;
+    color: var(--teal-light);
+    font-size: 0.79rem; font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
 
-        /* SIDEBAR MENU */
-        .sidebar-menu {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 12px rgba(61,43,31,0.08);
-            position: sticky;
-            top: 24px;
-        }
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 20px;
-            text-decoration: none;
-            color: var(--brown);
-            font-size: 0.9rem;
-            border-bottom: 1px solid var(--light);
-            transition: all 0.2s;
-        }
-        .sidebar-menu a:last-child { border-bottom: none; }
-        .sidebar-menu a:hover { background: var(--light); }
-        .sidebar-menu a.active { background: var(--accent); color: white; font-weight: bold; }
-        .sidebar-menu a .icon { font-size: 1rem; width: 20px; text-align: center; }
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+.profile-section { padding: 32px 0 64px; }
+.profile-layout {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    gap: 24px;
+    align-items: start;
+}
 
-        /* CONTENT AREA */
-        .content-area { display: flex; flex-direction: column; gap: 24px; }
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+.sidebar-nav {
+    background: white;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: sticky;
+    top: 82px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 14px 20px;
+    text-decoration: none;
+    color: var(--navy);
+    font-size: 0.87rem;
+    font-weight: 500;
+    border-bottom: 1px solid #f3f4f6;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    border-bottom: 1px solid #f3f4f6;
+}
+.sidebar-nav-item:last-child { border-bottom: none; }
+.sidebar-nav-item:hover {
+    background: #f0fdf4;
+    color: var(--teal-dark);
+    padding-left: 24px;
+}
+.sidebar-nav-item.active {
+    background: var(--teal);
+    color: white;
+    font-weight: 600;
+}
+.sidebar-nav-item.active:hover {
+    background: var(--teal-dark);
+    color: white;
+    padding-left: 20px;
+}
+.sidebar-nav-item.danger { color: #dc2626; }
+.sidebar-nav-item.danger:hover { background: #fef2f2; color: #b91c1c; padding-left: 24px; }
+.nav-icon { font-size: 1rem; width: 20px; text-align: center; }
 
-        .content-card {
-            background: white;
-            border-radius: 12px;
-            padding: 28px;
-            box-shadow: 0 2px 12px rgba(61,43,31,0.08);
-        }
-        .content-card h3 {
-            font-size: 1.05rem;
-            margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--light);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+/* ═══════════════════════════════════════════
+   PANELS
+═══════════════════════════════════════════ */
+.content-area { display: flex; flex-direction: column; gap: 20px; }
+.profile-panel { display: none; flex-direction: column; gap: 20px; }
+.profile-panel.active { display: flex; }
 
-        /* PROFILE FORM */
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-        .form-row.full { grid-template-columns: 1fr; }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 0.82rem; color: var(--text-muted); font-family: sans-serif; }
-        .form-group input, .form-group select {
-            padding: 10px 14px;
-            border: 1.5px solid #ddd;
-            border-radius: 7px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            color: var(--brown);
-            background: var(--cream);
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
-        .form-group input[readonly] { background: #f5f5f5; color: #999; cursor: not-allowed; }
+/* ═══════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════ */
+.pcard {
+    background: white;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+.pcard-head {
+    padding: 16px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.pcard-head h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    color: var(--navy);
+    font-weight: 700;
+}
+.pcard-body { padding: 24px; }
 
-        .btn-save {
-            padding: 11px 28px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 7px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-save:hover { background: #a93226; }
+/* ═══════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════ */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.stat-card {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+.stat-card:hover { transform: translateY(-2px); }
+.stat-card.amber-card {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef9c3 100%);
+    border-color: #fde68a;
+}
+.stat-card.blue-card {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-color: #bfdbfe;
+}
+.stat-num {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--teal-dark);
+    line-height: 1;
+    margin-bottom: 6px;
+}
+.stat-card.amber-card .stat-num { color: #92400e; }
+.stat-card.blue-card  .stat-num { color: #1e40af; font-size: 1.5rem; }
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 
-        /* ORDER HISTORY */
-        .order-table { width: 100%; border-collapse: collapse; }
-        .order-table th {
-            text-align: left;
-            padding: 10px 14px;
-            background: var(--light);
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            font-family: sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-        .order-table td {
-            padding: 13px 14px;
-            border-bottom: 1px solid var(--light);
-            font-size: 0.88rem;
-        }
-        .order-table tr:last-child td { border-bottom: none; }
-        .order-table tr:hover td { background: #fdfaf6; }
+/* ═══════════════════════════════════════════
+   FORM FIELDS
+═══════════════════════════════════════════ */
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.form-grid-1 { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
+.fgroup { display: flex; flex-direction: column; gap: 6px; }
+.fgroup label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+.fgroup label .req { color: var(--coral); margin-left: 2px; }
+.finput {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    color: var(--ink);
+    background: #f9fafb;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.finput:focus {
+    border-color: var(--teal);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(13,148,136,0.08);
+}
+.finput[readonly] {
+    background: #f1f5f9;
+    color: var(--muted);
+    cursor: not-allowed;
+    border-color: #e5e7eb;
+}
+.btn-save {
+    padding: 10px 26px;
+    background: var(--teal);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-save:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(13,148,136,0.3); }
 
-        .status-badge {
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-family: sans-serif;
-            font-weight: bold;
-        }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-approved { background: #d1e7dd; color: #0f5132; }
-        .status-rejected { background: #f8d7da; color: #842029; }
+/* Password tips */
+.pw-tip-box {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.82rem;
+    color: #065f46;
+    margin-bottom: 18px;
+    line-height: 1.65;
+}
 
-        .btn-view-order {
-            padding: 5px 12px;
-            border: 1px solid var(--brown);
-            background: transparent;
-            border-radius: 5px;
-            font-size: 0.78rem;
-            cursor: pointer;
-            color: var(--brown);
-            font-family: inherit;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-        .btn-view-order:hover { background: var(--brown); color: white; }
+/* ═══════════════════════════════════════════
+   ORDER TABLE
+═══════════════════════════════════════════ */
+.order-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+.order-table th {
+    padding: 11px 16px;
+    background: #f8fafc;
+    font-size: 0.71rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+}
+.order-table td {
+    padding: 13px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+.order-table tr:last-child td { border-bottom: none; }
+.order-table tbody tr { transition: background 0.15s; }
+.order-table tbody tr:hover td { background: #fafafa; }
 
-        /* CHANGE PASSWORD */
-        .password-tips {
-            background: var(--light);
-            border-radius: 7px;
-            padding: 12px 16px;
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-            line-height: 1.6;
-        }
-    </style>
-</head>
-<body>
-    {% include 'includes/header.html' %}
+/* Order ID */
+.order-id {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--navy);
+}
 
-    <!-- BANNER -->
-    <div class="page-header">
-        <div class="container">
-            <div class="profile-banner">
-                <div class="avatar">N</div>
-                <div class="profile-banner-info">
-                    <h1>Nguyễn Văn Mẫu</h1>
-                    <p>nguyen.van.mau@email.com · Thành viên từ 01/2024</p>
-                </div>
-                <span class="profile-badge">👤 User</span>
+/* Book thumbs */
+.book-thumbs { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.book-thumb {
+    width: 34px; height: 44px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+}
+.book-thumb-placeholder {
+    width: 34px; height: 44px;
+    background: var(--warm);
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+}
+.thumb-more { font-size: 0.72rem; color: var(--muted); margin-left: 2px; }
+
+/* Status badges */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.73rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.pill-pending  { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+.pill-approved { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.pill-shipping { background: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }
+.pill-done     { background: #dcfce7; color: #14532d; border: 1px solid #bbf7d0; }
+.pill-rejected { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
+
+/* Empty orders */
+.orders-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+}
+.orders-empty-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.5; }
+.orders-empty p { font-size: 0.9rem; margin-bottom: 14px; }
+.orders-empty a {
+    color: var(--teal);
+    font-weight: 600;
+    text-decoration: none;
+}
+.orders-empty a:hover { text-decoration: underline; }
+
+/* Order price */
+.order-price {
+    font-weight: 700;
+    color: var(--coral);
+    white-space: nowrap;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ───────────────────────────────────── -->
+<div class="profile-hero">
+    <div class="container">
+        <div class="profile-banner">
+            <div class="avatar-circle">
+                {{ user.username|first|upper }}
             </div>
+            <div class="profile-banner-info">
+                <h1>{{ user.get_full_name|default:user.username }}</h1>
+                <p>{{ user.email }} &nbsp;·&nbsp; Thành viên từ {{ user.date_joined|date:"m/Y" }}</p>
+            </div>
+            <span class="profile-role-badge">{{ user.role|title }}</span>
         </div>
     </div>
+</div>
 
-    <section class="profile-section">
-        <div class="container">
-            <div class="profile-layout">
+<!-- ── MAIN LAYOUT ────────────────────────────── -->
+<section class="profile-section">
+    <div class="container">
+        <div class="profile-layout">
 
-                <!-- SIDEBAR -->
-                <div class="sidebar-menu">
-                    <a href="#info" class="active"><span class="icon">👤</span> Thông tin cá nhân</a>
-                    <a href="#orders"><span class="icon">📦</span> Đơn hàng của tôi</a>
-                    <a href="#password"><span class="icon">🔒</span> Đổi mật khẩu</a>
-                    <a href="{% url 'books:home' %}"><span class="icon">🚪</span> Đăng xuất</a>
+            <!-- SIDEBAR -->
+            <aside>
+                <nav class="sidebar-nav">
+                    <button class="sidebar-nav-item active"
+                            onclick="switchPanel('info', this)">
+                        <span class="nav-icon">👤</span> Thông tin cá nhân
+                    </button>
+                    <button class="sidebar-nav-item"
+                            onclick="switchPanel('orders', this)">
+                        <span class="nav-icon">📦</span> Đơn hàng ({{ orders.count }})
+                    </button>
+                    <button class="sidebar-nav-item"
+                            onclick="switchPanel('password', this)">
+                        <span class="nav-icon">🔒</span> Đổi mật khẩu
+                    </button>
+                    <a href="{% url 'books:logout' %}" class="sidebar-nav-item danger">
+                        <span class="nav-icon">🚪</span> Đăng xuất
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- CONTENT -->
+            <div class="content-area">
+
+                <!-- ══ PANEL: THÔNG TIN ══ -->
+                <div class="profile-panel active" id="panel-info">
+
+                    <!-- Stats -->
+                    <div class="pcard">
+                        <div class="pcard-head">
+                            <h3>📊 Tổng quan tài khoản</h3>
+                        </div>
+                        <div class="pcard-body">
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-num">{{ orders.count }}</div>
+                                    <div class="stat-label">Đơn đã đặt</div>
+                                </div>
+                                <div class="stat-card amber-card">
+                                    <div class="stat-num">{{ orders_done_count }}</div>
+                                    <div class="stat-label">Đã hoàn thành</div>
+                                </div>
+                                <div class="stat-card blue-card">
+                                    <div class="stat-num" id="totalSpentDisplay"
+                                         data-val="{{ total_spent|floatformat:0 }}">—</div>
+                                    <div class="stat-label">Tổng chi tiêu</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form thông tin -->
+                    <div class="pcard">
+                        <div class="pcard-head">
+                            <h3>👤 Thông tin cá nhân</h3>
+                        </div>
+                        <div class="pcard-body">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_info">
+                                <div class="form-grid-2">
+                                    <div class="fgroup">
+                                        <label>Họ</label>
+                                        <input type="text" name="last_name" class="finput"
+                                               value="{{ user.last_name }}" placeholder="Nguyễn">
+                                    </div>
+                                    <div class="fgroup">
+                                        <label>Tên</label>
+                                        <input type="text" name="first_name" class="finput"
+                                               value="{{ user.first_name }}" placeholder="Văn A">
+                                    </div>
+                                </div>
+                                <div class="form-grid-2">
+                                    <div class="fgroup">
+                                        <label>Tên đăng nhập</label>
+                                        <input type="text" class="finput"
+                                               value="{{ user.username }}" readonly>
+                                    </div>
+                                    <div class="fgroup">
+                                        <label>Email <span class="req">*</span></label>
+                                        <input type="email" name="email" class="finput"
+                                               value="{{ user.email }}" required>
+                                    </div>
+                                </div>
+                                <div class="form-grid-2">
+                                    <div class="fgroup">
+                                        <label>Vai trò</label>
+                                        <input type="text" class="finput"
+                                               value="{{ user.role|title }}" readonly>
+                                    </div>
+                                    <div class="fgroup">
+                                        <label>Trạng thái</label>
+                                        <input type="text" class="finput"
+                                               value="{{ user.status|title }}" readonly>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-save">💾 Lưu thay đổi</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- CONTENT -->
-                <div class="content-area">
-
-                    <!-- THÔNG TIN CÁ NHÂN -->
-                    <div class="content-card" id="info">
-                        <h3>👤 Thông tin cá nhân</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Họ và tên</label>
-                                <input type="text" value="Nguyễn Văn Mẫu">
-                            </div>
-                            <div class="form-group">
-                                <label>Tên đăng nhập</label>
-                                <input type="text" value="nguyen.van.mau" readonly>
-                            </div>
+                <!-- ══ PANEL: ĐƠN HÀNG ══ -->
+                <div class="profile-panel" id="panel-orders">
+                    <div class="pcard">
+                        <div class="pcard-head">
+                            <h3>📦 Lịch sử đơn hàng</h3>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" value="nguyen.van.mau@email.com">
+                        <div class="pcard-body" style="padding: 0;">
+                            {% if orders %}
+                            <table class="order-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Sách</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Địa chỉ nhận</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    <tr>
+                                        <td>
+                                            <span class="order-id">#{{ order.id }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="book-thumbs">
+                                                {% for item in order.items.all|slice:":3" %}
+                                                    {% if item.book.cover_image %}
+                                                        <img src="{{ item.book.cover_image.url }}"
+                                                             class="book-thumb"
+                                                             title="{{ item.book.title }}">
+                                                    {% else %}
+                                                        <div class="book-thumb-placeholder"
+                                                             title="{{ item.book.title }}">📖</div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% if order.items.count > 3 %}
+                                                    <span class="thumb-more">+{{ order.items.count|add:"-3" }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="order-price"
+                                                  data-price="{{ order.total_price }}">—</span>
+                                        </td>
+                                        <td style="max-width:150px; font-size:0.79rem; color:var(--muted);">
+                                            {{ order.address|truncatechars:45 }}
+                                        </td>
+                                        <td style="white-space:nowrap; color:var(--muted); font-size:0.81rem;">
+                                            {{ order.created_at|date:"d/m/Y" }}
+                                        </td>
+                                        <td>
+                                            {% if order.status == 'pending' %}
+                                                <span class="status-pill pill-pending">⏳ Chờ duyệt</span>
+                                            {% elif order.status == 'approved' %}
+                                                <span class="status-pill pill-approved">✅ Đã duyệt</span>
+                                            {% elif order.status == 'shipping' %}
+                                                <span class="status-pill pill-shipping">🚚 Đang giao</span>
+                                            {% elif order.status == 'done' %}
+                                                <span class="status-pill pill-done">🎉 Hoàn thành</span>
+                                            {% elif order.status == 'rejected' %}
+                                                <span class="status-pill pill-rejected">✗ Đã hủy</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <div class="orders-empty">
+                                <div class="orders-empty-icon">📦</div>
+                                <p>Bạn chưa có đơn hàng nào.</p>
+                                <a href="{% url 'books:shop' %}">Mua sắm ngay →</a>
                             </div>
-                            <div class="form-group">
-                                <label>Số điện thoại</label>
-                                <input type="tel" value="0912 345 678">
-                            </div>
+                            {% endif %}
                         </div>
-                        <div class="form-row full">
-                            <div class="form-group">
-                                <label>Địa chỉ</label>
-                                <input type="text" value="123 Đường Mẫu, Quận 1, TP.HCM">
-                            </div>
-                        </div>
-                        <button class="btn-save">💾 Lưu thay đổi</button>
                     </div>
-
-                    <!-- LỊCH SỬ ĐƠN HÀNG -->
-                    <div class="content-card" id="orders">
-                        <h3>📦 Lịch sử đơn hàng</h3>
-                        <table class="order-table">
-                            <thead>
-                                <tr>
-                                    <th>Mã đơn</th>
-                                    <th>Sách</th>
-                                    <th>Tổng tiền</th>
-                                    <th>Ngày đặt</th>
-                                    <th>Trạng thái</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>#DH001</td>
-                                    <td>Sách Hay Số 1</td>
-                                    <td style="color:var(--accent);font-weight:bold">189.000đ</td>
-                                    <td>01/03/2024</td>
-                                    <td><span class="status-badge status-approved">Đã duyệt</span></td>
-                                    <td><a href="#" class="btn-view-order">Xem</a></td>
-                                </tr>
-                                <tr>
-                                    <td>#DH002</td>
-                                    <td>Sách Hay Số 3</td>
-                                    <td style="color:var(--accent);font-weight:bold">378.000đ</td>
-                                    <td>15/03/2024</td>
-                                    <td><span class="status-badge status-pending">Chờ duyệt</span></td>
-                                    <td><a href="#" class="btn-view-order">Xem</a></td>
-                                </tr>
-                                <tr>
-                                    <td>#DH003</td>
-                                    <td>Sách Hay Số 5</td>
-                                    <td style="color:var(--accent);font-weight:bold">229.000đ</td>
-                                    <td>20/03/2024</td>
-                                    <td><span class="status-badge status-rejected">Từ chối</span></td>
-                                    <td><a href="#" class="btn-view-order">Xem</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- ĐỔI MẬT KHẨU -->
-                    <div class="content-card" id="password">
-                        <h3>🔒 Đổi mật khẩu</h3>
-                        <div class="password-tips">
-                            Mật khẩu cần ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số.
-                        </div>
-                        <div class="form-row full">
-                            <div class="form-group">
-                                <label>Mật khẩu hiện tại</label>
-                                <input type="password" placeholder="••••••••">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Mật khẩu mới</label>
-                                <input type="password" placeholder="••••••••">
-                            </div>
-                            <div class="form-group">
-                                <label>Xác nhận mật khẩu mới</label>
-                                <input type="password" placeholder="••••••••">
-                            </div>
-                        </div>
-                        <button class="btn-save">🔒 Cập nhật mật khẩu</button>
-                    </div>
-
                 </div>
-            </div>
+
+                <!-- ══ PANEL: ĐỔI MẬT KHẨU ══ -->
+                <div class="profile-panel" id="panel-password">
+                    <div class="pcard">
+                        <div class="pcard-head">
+                            <h3>🔒 Đổi mật khẩu</h3>
+                        </div>
+                        <div class="pcard-body">
+                            <div class="pw-tip-box">
+                                💡 Mật khẩu cần ít nhất <strong>8 ký tự</strong>.
+                                Kết hợp chữ hoa, chữ thường và số để bảo mật tốt hơn.
+                            </div>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="change_password">
+                                <div class="form-grid-1">
+                                    <div class="fgroup">
+                                        <label>Mật khẩu hiện tại <span class="req">*</span></label>
+                                        <input type="password" name="old_password" class="finput"
+                                               placeholder="••••••••" required>
+                                    </div>
+                                </div>
+                                <div class="form-grid-2">
+                                    <div class="fgroup">
+                                        <label>Mật khẩu mới <span class="req">*</span></label>
+                                        <input type="password" name="new_password" class="finput"
+                                               placeholder="••••••••" required>
+                                    </div>
+                                    <div class="fgroup">
+                                        <label>Xác nhận mật khẩu mới <span class="req">*</span></label>
+                                        <input type="password" name="new_password2" class="finput"
+                                               placeholder="••••••••" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-save">🔒 Cập nhật mật khẩu</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- end content-area -->
         </div>
-    </section>
+    </div>
+</section>
 
-    {% include 'includes/footer.html' %}
-    {% include 'partials/messages.html' %}
-</body>
-</html>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Panel switching ───────────────────────────
+function switchPanel(name, el) {
+    document.querySelectorAll('.profile-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    el.classList.add('active');
+}
+
+// ── Auto-open từ URL hash ─────────────────────
+const hash = location.hash.replace('#', '');
+if (['orders', 'password'].includes(hash)) {
+    const btn = document.querySelector(`[onclick*="'${hash}'"]`);
+    if (btn) switchPanel(hash, btn);
+}
+
+// ── Tổng chi tiêu (chỉ đơn done, tính từ backend) ──
+const spentEl = document.getElementById('totalSpentDisplay');
+if (spentEl) {
+    const val = parseFloat(spentEl.dataset.val);
+    if (!isNaN(val) && val > 0) {
+        spentEl.textContent = val.toLocaleString('vi-VN') + ' đ';
+    } else {
+        spentEl.textContent = '0 đ';
+    }
+}
+
+// ── Format giá trong bảng đơn hàng ───────────
+document.querySelectorAll('.order-price[data-price]').forEach(el => {
+    const n = parseFloat(el.dataset.price);
+    if (!isNaN(n)) el.textContent = n.toLocaleString('vi-VN') + ' đ';
+});
+</script>
+{% endblock %}

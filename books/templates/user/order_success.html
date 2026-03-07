@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Đặt hàng thành công - Bookshop{% endblock %}
+
+{% block extra_css %}
+<style>
+.success-section { padding: 64px 0; }
+.success-card {
+    max-width: 680px; margin: 0 auto;
+    background: white; border-radius: 16px;
+    border: 1px solid var(--border); overflow: hidden;
+    box-shadow: 0 8px 32px rgba(30,58,95,0.08);
+}
+.success-head {
+    padding: 40px 32px; text-align: center;
+    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+    border-bottom: 1px solid #bbf7d0;
+}
+.success-icon { font-size: 3.5rem; margin-bottom: 14px; }
+.success-head h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: #065f46; margin-bottom: 6px; }
+.success-head p { color: #059669; font-size: 0.9rem; }
+.order-id-badge {
+    display: inline-block; margin-top: 14px;
+    background: var(--teal); color: white;
+    padding: 6px 20px; border-radius: 20px;
+    font-size: 0.82rem; font-weight: 600; letter-spacing: 1px;
+}
+
+.success-body { padding: 28px 32px; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.info-box {
+    padding: 14px 16px; background: #f8fafc;
+    border-radius: 10px; border: 1px solid var(--border);
+}
+.info-box .label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; }
+.info-box .value { font-size: 0.9rem; color: var(--navy); font-weight: 500; }
+
+.items-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--navy); margin-bottom: 14px; }
+.order-item {
+    display: flex; gap: 12px; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.order-item:last-child { border-bottom: none; }
+.oi-img { width: 44px; height: 56px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
+.oi-no-img { width: 44px; height: 56px; background: var(--warm); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+.oi-title { font-size: 0.88rem; font-weight: 600; color: var(--navy); }
+.oi-qty { font-size: 0.76rem; color: var(--muted); }
+.oi-price { font-size: 0.9rem; font-weight: 700; color: var(--coral); margin-left: auto; white-space: nowrap; }
+
+.total-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 0 0;
+    margin-top: 8px;
+    font-size: 1.05rem; font-weight: 700;
+    border-top: 2px solid var(--border);
+}
+.total-bar .amount { font-size: 1.3rem; color: var(--coral); }
+
+.success-actions { display: flex; gap: 12px; margin-top: 28px; }
+.btn-home {
+    flex: 1; padding: 12px; background: var(--navy); color: white;
+    border-radius: 8px; text-align: center; text-decoration: none;
+    font-weight: 600; font-size: 0.88rem; transition: background 0.2s;
+}
+.btn-home:hover { background: #1e3a5f; }
+.btn-shop-more {
+    flex: 1; padding: 12px; background: var(--teal); color: white;
+    border-radius: 8px; text-align: center; text-decoration: none;
+    font-weight: 600; font-size: 0.88rem; transition: background 0.2s;
+}
+.btn-shop-more:hover { background: var(--teal-dark); }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="success-section">
+    <div class="container">
+        <div class="success-card">
+            <div class="success-head">
+                <div class="success-icon">✅</div>
+                <h2>Đặt hàng thành công!</h2>
+                <p>Cảm ơn bạn đã tin tưởng Bookshop. Chúng tôi sẽ xử lý đơn hàng sớm nhất.</p>
+                <span class="order-id-badge">Mã đơn #{{ order.id }}</span>
+            </div>
+
+            <div class="success-body">
+                <div class="info-grid">
+                    <div class="info-box">
+                        <div class="label">Người nhận</div>
+                        <div class="value">{{ order.receiver_name }}</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="label">Số điện thoại</div>
+                        <div class="value">{{ order.phone }}</div>
+                    </div>
+                    <div class="info-box" style="grid-column:1/-1">
+                        <div class="label">Địa chỉ giao hàng</div>
+                        <div class="value">{{ order.address }}</div>
+                    </div>
+                    {% if order.note %}
+                    <div class="info-box" style="grid-column:1/-1">
+                        <div class="label">Ghi chú</div>
+                        <div class="value">{{ order.note }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="items-title">Sách đã đặt</div>
+                {% for item in order.items.all %}
+                <div class="order-item">
+                    {% if item.book.cover_image %}
+                        <img src="{{ item.book.cover_image.url }}" class="oi-img" alt="{{ item.book.title }}">
+                    {% else %}
+                        <div class="oi-no-img">📖</div>
+                    {% endif %}
+                    <div>
+                        <div class="oi-title">{{ item.book.title }}</div>
+                        <div class="oi-qty">x{{ item.quantity }} · {{ item.unit_price|floatformat:0 }} đ/quyển</div>
+                    </div>
+                    <div class="oi-price" data-sub="{{ item.subtotal }}">—</div>
+                </div>
+                {% endfor %}
+
+                <div class="total-bar">
+                    <span>Tổng thanh toán</span>
+                    <span class="amount" data-total="{{ order.total_price }}">—</span>
+                </div>
+
+                <div class="success-actions">
+                    <a href="{% url 'books:home' %}" class="btn-home">🏠 Về trang chủ</a>
+                    <a href="{% url 'books:shop' %}" class="btn-shop-more">📚 Mua thêm sách</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.oi-price').forEach(el => {
+    el.textContent = parseFloat(el.dataset.sub).toLocaleString('vi-VN') + ' đ';
+});
+const tot = document.querySelector('.amount[data-total]');
+if (tot) tot.textContent = parseFloat(tot.dataset.total).toLocaleString('vi-VN') + ' đ';
+</script>
+{% endblock %}
