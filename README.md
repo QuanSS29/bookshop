@@ -7,6 +7,45 @@ Mục tiêu của dự án:
 -	Thực hiện đầy đủ các chức năng nghiệp vụ cơ bản của một website bán hàng trực tuyến như: đăng ký, đăng nhập, phân quyền, giỏ hàng, đặt hàng và thống kê báo cáo.
 -	Rèn luyện kỹ năng phân tích yêu cầu, thiết kế hệ thống và triển khai phần mềm thực tế cho sinh viên.
 
+Các chức năng chính:
+-Xem sách
+
+Hiển thị danh sách sách/truyện
+
+Xem thông tin chi tiết (tên, giá, mô tả)
+
+-Tìm kiếm
+
+Tìm sách theo tên hoặc tác giả
+
+-Giỏ hàng
+
+Thêm sách vào giỏ
+
+Xóa hoặc sửa số lượng
+
+-Đặt hàng
+
+Nhập thông tin người mua
+
+Xác nhận mua hàng
+
+-Tài khoản
+
+Đăng ký, đăng nhập
+
+Xem lịch sử đơn hàng
+
+-Đánh giá
+
+Nhận xét, đánh giá sách
+
+-Quản trị (Admin)
+
+Thêm / sửa / xóa sách
+
+Quản lý đơn hàng
+
 Tài khoản:
 
 TK ADMIN:  admin@bookshop.com | 123
