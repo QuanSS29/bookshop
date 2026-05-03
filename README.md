@@ -45,10 +45,3 @@ Nhận xét, đánh giá sách
 Thêm / sửa / xóa sách
 
 Quản lý đơn hàng
-
-Tài khoản:
-
-TK ADMIN:  admin@bookshop.com | 123
-
-TK USER: nana@gmail.com| 11111111
- 
